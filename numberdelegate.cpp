@@ -13,9 +13,7 @@ QString NumberDelegate::displayText(const QVariant &value, const QLocale &locale
     return formattedNum;
 }
 
-QWidget *NumberDelegate::createEditor(QWidget *parent,
-    const QStyleOptionViewItem &/* option */,
-    const QModelIndex &/* index */) const
+QWidget *NumberDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &, const QModelIndex &) const
 {
     QDoubleSpinBox *editor = new QDoubleSpinBox(parent);
     editor->setDecimals(2);
@@ -23,12 +21,12 @@ QWidget *NumberDelegate::createEditor(QWidget *parent,
     editor->setFrame(false);
     editor->setMinimum(0);
     editor->setMaximum(100);
+    editor->setGroupSeparatorShown(true);
 
     return editor;
 }
 
-void NumberDelegate::setEditorData(QWidget *editor,
-                                    const QModelIndex &index) const
+void NumberDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     double value = index.data(Qt::EditRole).toDouble();
 
@@ -36,8 +34,7 @@ void NumberDelegate::setEditorData(QWidget *editor,
     spinBox->setValue(value);
 }
 
-void NumberDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
-                                   const QModelIndex &index) const
+void NumberDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
     spinBox->interpretText();
@@ -45,8 +42,7 @@ void NumberDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 
     model->setData(index, value, Qt::EditRole);
 }
-void NumberDelegate::updateEditorGeometry(QWidget *editor,
-    const QStyleOptionViewItem &option, const QModelIndex &/* index */) const
+void NumberDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const
 {
     editor->setGeometry(option.rect);
 }

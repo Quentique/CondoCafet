@@ -26,10 +26,10 @@ MainEdit::MainEdit(QSqlDatabase *db, QString gtable) : QWidget()
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     view->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
     view->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+
 
     end = new QPushButton("Ok");
     end->setMinimumWidth(75);

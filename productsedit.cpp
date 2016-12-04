@@ -23,6 +23,9 @@ ProductsEdit::ProductsEdit(QSqlDatabase *db) : MainEdit(db, "products")
     view->setItemDelegateForColumn(3, new ComboDelegate(this));
     view->hideColumn(0);
     view->hideColumn(4);
+    view->setColumnWidth(1, 200);
+    view->setColumnWidth(2, view->width()/1.8);
+    view->setColumnWidth(3, view->width()/1.5);
 
     setWindowTitle(tr("Édition des produits"));
     connect(add, SIGNAL(clicked(bool)), this, SLOT(addRow()));
@@ -45,6 +48,6 @@ void ProductsEdit::addRow()
     query.bindValue(":object", tr("Nouveau"));
     query.exec();
     qDebug() << query.lastError().text();
-    model->sort(0, Qt::AscendingOrder);
+    model->sort(3, Qt::AscendingOrder);
     model->select();
 }
