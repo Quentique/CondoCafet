@@ -17,13 +17,12 @@ MainWindow::MainWindow()
 
     QMenu *admin = menuBar()->addMenu(tr("&Administration"));
 
-    QAction *productsManagement = new QAction(tr("&Gestion des produits"), this);
+    QAction *productsManagement = new QAction(tr("Gestion des &produits"), this);
+    QAction *sellersManagement = new QAction(tr("Gestion des &vendeurs"), this);
     admin->addAction(productsManagement);
+    admin->addAction(sellersManagement);
 
     manager = new DbManager("C:\\Users\\Quentin DE MUYNCK\\Desktop\\database.db");
-
-    SellersEdit *ed = new SellersEdit(manager->getDB());
-    ed->show();
 
     setCentralWidget(centralWidget);
     setMinimumHeight(450);
@@ -32,10 +31,17 @@ MainWindow::MainWindow()
     show();
 
     connect(productsManagement, SIGNAL(triggered(bool)), this, SLOT(showProductsEdit()));
+    connect(sellersManagement, SIGNAL(triggered(bool)), this, SLOT(showSellersEdit()));
 }
 
 void MainWindow::showProductsEdit()
 {
-    ProductsEdit *edit = new ProductsEdit(manager->getDB());
-    edit->show();
+    ProductsEdit *pedit = new ProductsEdit(manager->getDB());
+    pedit->show();
+}
+
+void MainWindow::showSellersEdit()
+{
+    SellersEdit *sedit = new SellersEdit(manager->getDB());
+    sedit->show();
 }

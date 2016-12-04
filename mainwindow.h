@@ -13,6 +13,7 @@ public:
 
 public slots:
     void showProductsEdit();
+    void showSellersEdit();
 
 private:
     QWidget *centralWidget;
