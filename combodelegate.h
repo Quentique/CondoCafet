@@ -24,7 +24,6 @@ public:
 
     static QMap<QString, QString> getColours();
 private:
-    QComboBox *combo;
     static QMap<QString, int> my_map;
 };
 #endif // COMBODELEGATE_H

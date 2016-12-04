@@ -3,7 +3,11 @@
 
 ComboDelegate::ComboDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
-    combo = new QComboBox();
+}
+
+QWidget* ComboDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    QComboBox *combo = new QComboBox(parent);
     combo->setFrame(false);
     combo->setStyleSheet("QComboBox { border: none; opacity: 0; }");
     QMap<QString, QString> map = getColours();
@@ -11,11 +15,6 @@ ComboDelegate::ComboDelegate(QObject *parent) : QStyledItemDelegate(parent)
     {
         combo->addItem(it.value(), it.key());
     }
-}
-
-QWidget* ComboDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
-{
-    combo->setParent(parent);
     return combo;
 }
 
