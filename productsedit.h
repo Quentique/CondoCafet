@@ -6,28 +6,20 @@
 #include <QSqlTableModel>
 #include <QSqlDatabase>
 #include <QPushButton>
+#include "mainedit.h"
 
 
-class ProductsEdit : public QWidget
+class ProductsEdit : public MainEdit
 {
     Q_OBJECT
 public:
     explicit ProductsEdit(QSqlDatabase *db);
-
-private:
-    QTableView *view;
-    QSqlTableModel *model;
 
 signals:
 
 public slots:
     void check(int, QSqlRecord &record);
     void addRow();
-    void selectRow();
-    void deleteRow();
-
-private:
-    QPushButton *end, *add, *remove;
 };
 
 #endif // PRODUCTSEDIT_H
