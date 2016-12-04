@@ -53,7 +53,6 @@ MainEdit::MainEdit(QSqlDatabase *db, QString gtable) : QWidget()
     layout->addLayout(Lview);
     layout->addWidget(end, 0, Qt::AlignRight);
 
-   // connect(model, SIGNAL(beforeUpdate(int,QSqlRecord&)), this, SLOT(check(int,QSqlRecord&)));
     connect(end, SIGNAL(clicked(bool)), this, SLOT(close()));
     connect(add, SIGNAL(clicked(bool)), this, SLOT(addRow()));
     connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(selectRow()));

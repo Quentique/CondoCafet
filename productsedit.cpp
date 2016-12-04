@@ -26,11 +26,12 @@ ProductsEdit::ProductsEdit(QSqlDatabase *db) : MainEdit(db, "products")
 
     setWindowTitle(tr("Édition des produits"));
     connect(add, SIGNAL(clicked(bool)), this, SLOT(addRow()));
+    connect(model, SIGNAL(beforeUpdate(int,QSqlRecord&)), this, SLOT(check(int,QSqlRecord&)));
 }
 
 void ProductsEdit::check(int, QSqlRecord &record)
 {
-    if (record.value("price").toDouble() < 0)
+    if (record.value("price").toDouble() <= 0)
     {
         record.setValue("price", qFabs(record.value("price").toDouble()));
     }
