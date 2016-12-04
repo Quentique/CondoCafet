@@ -5,7 +5,7 @@
 #include <QTableView>
 #include <QSqlTableModel>
 #include <QSqlDatabase>
-
+#include <QPushButton>
 
 
 class ProductsEdit : public QWidget
@@ -22,6 +22,10 @@ signals:
 
 public slots:
     void check(int, QSqlRecord &record);
+    void addRow();
+
+private:
+    QPushButton *end, *add, *remove;
 };
 
 #endif // PRODUCTSEDIT_H

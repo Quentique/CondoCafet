@@ -14,3 +14,6 @@ HEADERS += \
     productsedit.h \
     numberdelegate.h \
     combodelegate.h
+
+RESOURCES += \
+    ressource.qrc
