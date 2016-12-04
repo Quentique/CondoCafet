@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "dbmanager.h"
+#include "productsedit.h"
 #include <QMenu>
 #include <QAction>
 #include <QMenuBar>
@@ -20,6 +21,8 @@ MainWindow::MainWindow()
 
     DbManager manager("C:\\Users\\Quentin DE MUYNCK\\Desktop\\database.db");
 
+    ProductsEdit *edit = new ProductsEdit(manager.getDB());
+    edit->show();
 
     setCentralWidget(centralWidget);
     setMinimumHeight(450);

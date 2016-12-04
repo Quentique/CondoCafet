@@ -8,6 +8,8 @@ class DbManager
 {
 public:
     DbManager(const QString &path);
+    QSqlDatabase *getDB();
+
 private:
     QSqlDatabase db;
 
