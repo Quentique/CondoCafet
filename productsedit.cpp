@@ -36,8 +36,10 @@ ProductsEdit::ProductsEdit(QSqlDatabase *db) : QWidget()
     view->setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setSelectionMode(QAbstractItemView::SingleSelection);
+    view->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    view->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    view->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
     view->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
     end = new QPushButton("Ok");
@@ -52,7 +54,7 @@ ProductsEdit::ProductsEdit(QSqlDatabase *db) : QWidget()
     QVBoxLayout *buttons = new QVBoxLayout;
     buttons->addWidget(add, 1, Qt::AlignTop);
     buttons->addWidget(remove, 1, Qt::AlignTop);
-    buttons->addSpacing(100);
+    buttons->addSpacing(200);
 
     QHBoxLayout *Lview = new QHBoxLayout;
     Lview->addWidget(view);
@@ -110,4 +112,5 @@ void ProductsEdit::deleteRow()
     query.bindValue(":id", id);
     query.exec();
     model->select();
+    remove->setEnabled(false);
 }

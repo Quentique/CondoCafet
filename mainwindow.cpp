@@ -19,14 +19,19 @@ MainWindow::MainWindow()
     QAction *productsManagement = new QAction(tr("&Gestion des produits"), this);
     admin->addAction(productsManagement);
 
-    DbManager manager("C:\\Users\\Quentin DE MUYNCK\\Desktop\\database.db");
-
-    ProductsEdit *edit = new ProductsEdit(manager.getDB());
-    edit->show();
+    manager = new DbManager("C:\\Users\\Quentin DE MUYNCK\\Desktop\\database.db");
 
     setCentralWidget(centralWidget);
     setMinimumHeight(450);
     setMinimumWidth(900);
     setWindowTitle("CondoCafèt'");
     show();
+
+    connect(productsManagement, SIGNAL(triggered(bool)), this, SLOT(showProductsEdit()));
+}
+
+void MainWindow::showProductsEdit()
+{
+    ProductsEdit *edit = new ProductsEdit(manager->getDB());
+    edit->show();
 }
