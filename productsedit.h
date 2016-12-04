@@ -23,6 +23,8 @@ signals:
 public slots:
     void check(int, QSqlRecord &record);
     void addRow();
+    void selectRow();
+    void deleteRow();
 
 private:
     QPushButton *end, *add, *remove;

@@ -9,6 +9,8 @@
 #include <QHeaderView>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QIcon>
+#include <QSqlField>
 
 ProductsEdit::ProductsEdit(QSqlDatabase *db) : QWidget()
 {
@@ -33,6 +35,7 @@ ProductsEdit::ProductsEdit(QSqlDatabase *db) : QWidget()
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     view->setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
+    view->setSelectionMode(QAbstractItemView::SingleSelection);
     view->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     view->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     view->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -41,7 +44,9 @@ ProductsEdit::ProductsEdit(QSqlDatabase *db) : QWidget()
     end->setMinimumWidth(75);
 
     add = new QPushButton(tr("Ajouter"));
+    add->setIcon(QIcon(":images/add.png"));
     remove = new QPushButton(tr("Supprimer"));
+    remove->setIcon(QIcon(":images/delete.png"));
     remove->setEnabled(false);
 
     QVBoxLayout *buttons = new QVBoxLayout;
@@ -60,6 +65,8 @@ ProductsEdit::ProductsEdit(QSqlDatabase *db) : QWidget()
     connect(model, SIGNAL(beforeUpdate(int,QSqlRecord&)), this, SLOT(check(int,QSqlRecord&)));
     connect(end, SIGNAL(clicked(bool)), this, SLOT(close()));
     connect(add, SIGNAL(clicked(bool)), this, SLOT(addRow()));
+    connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(selectRow()));
+    connect(remove, SIGNAL(clicked(bool)), this, SLOT(deleteRow()));
 
     setLayout(layout);
     setWindowTitle(tr("Édition des produits"));
@@ -86,5 +93,21 @@ void ProductsEdit::addRow()
     query.exec();
     qDebug() << query.lastError().text();
     model->sort(0, Qt::AscendingOrder);
+    model->select();
+}
+
+void ProductsEdit::selectRow()
+{
+    remove->setEnabled(true);
+}
+
+void ProductsEdit::deleteRow()
+{
+
+    int id = model->record(view->selectionModel()->selection().indexes().at(0).row()).field("id").value().toInt();
+    QSqlQuery query(model->database());
+    query.prepare("DELETE FROM products WHERE id = :id");
+    query.bindValue(":id", id);
+    query.exec();
     model->select();
 }
