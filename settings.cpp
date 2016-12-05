@@ -1,10 +1,17 @@
 #include "settings.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QCoreApplication>
+#include <QMap>
+#include <QStandardItemModel>
+#include <QStandardItem>
 
 Settings::Settings() : QDialog()
 {
-
+    settings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
+    QMap<QString, QVariant> map;
+    map.insert("red", "#ffffff");
+    settings->setValue("colours", map);
     ok = new QPushButton(tr("Valider"));
     ok->setDefault(true);
     cancel = new QPushButton(tr("Annuler"));
@@ -32,4 +39,22 @@ Settings::Settings() : QDialog()
 
     connect(ok, SIGNAL(clicked(bool)), this, SLOT(accept()));
     connect(cancel, SIGNAL(clicked(bool)), this, SLOT(reject()));
+
+    fullInformations();
+}
+
+void Settings::fullInformations()
+{
+    QMap<QString, QVariant> colours_data = settings->value("colours").toMap();
+    QStandardItemModel* table_model = new QStandardItemModel(colours_data.size(), 2);
+    QMap<QString, QVariant>::iterator it = colours_data.begin();
+    for (int i =0 ;i < colours_data.size() ;i++)
+    {
+        QStandardItem *item = new QStandardItem(it.key());
+        QStandardItem *item2 = new QStandardItem(it.value().toString());
+        table_model->setItem(i, 0, item);
+        table_model->setItem(i, 1, item2);
+        it++;
+    }
+    coloursT->setModel(table_model);
 }

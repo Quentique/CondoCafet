@@ -14,8 +14,10 @@ class Settings : public QDialog
 {
 public:
     Settings();
+    void fullInformations();
 
 private:
+    QSettings *settings;
     QGroupBox *colours;
     QPushButton *ok, *cancel;
     QTableView *coloursT;
