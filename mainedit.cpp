@@ -30,7 +30,6 @@ MainEdit::MainEdit(QSqlDatabase *db, QString gtable) : QWidget()
     view->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
     view->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 
-
     end = new QPushButton("Ok");
     end->setMinimumWidth(75);
 

@@ -1,5 +1,6 @@
 #include "combodelegate.h"
 #include <QDebug>
+#include <QSettings>
 
 ComboDelegate::ComboDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {

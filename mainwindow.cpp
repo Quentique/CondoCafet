@@ -2,6 +2,7 @@
 #include "dbmanager.h"
 #include "productsedit.h"
 #include "sellersedit.h"
+#include "settings.h"
 #include <QMenu>
 #include <QAction>
 #include <QMenuBar>
@@ -24,6 +25,9 @@ MainWindow::MainWindow()
 
     manager = new DbManager("C:\\Users\\Quentin DE MUYNCK\\Desktop\\database.db");
 
+    Settings *settings = new Settings;
+    settings->exec();
+
     setCentralWidget(centralWidget);
     setMinimumHeight(450);
     setMinimumWidth(900);
@@ -32,6 +36,7 @@ MainWindow::MainWindow()
 
     connect(productsManagement, SIGNAL(triggered(bool)), this, SLOT(showProductsEdit()));
     connect(sellersManagement, SIGNAL(triggered(bool)), this, SLOT(showSellersEdit()));
+    connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
 }
 
 void MainWindow::showProductsEdit()

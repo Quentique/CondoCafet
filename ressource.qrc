@@ -2,20 +2,20 @@
     <qresource prefix="/images">
         <file>add.png</file>
         <file>delete.png</file>
+        <file>minus.png</file>
     </qresource>
-    <qresource prefix="/coins"/>
-    <qresource prefix="/">
-        <file>0,01.png</file>
-        <file>0,02.png</file>
-        <file>0,05.png</file>
-        <file>0,10.png</file>
-        <file>0,20.png</file>
-        <file>0,50.png</file>
+    <qresource prefix="/coins">
         <file>1.png</file>
         <file>2.png</file>
         <file>5.png</file>
         <file>10.png</file>
-        <file>20.png</file>
         <file>50.png</file>
+        <file>20.png</file>
+        <file>0.01.png</file>
+        <file>0.02.png</file>
+        <file>0.05.png</file>
+        <file>0.10.png</file>
+        <file>0.20.png</file>
+        <file>0.50.png</file>
     </qresource>
 </RCC>

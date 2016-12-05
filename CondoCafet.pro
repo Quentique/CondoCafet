@@ -8,7 +8,8 @@ SOURCES += \
     numberdelegate.cpp \
     combodelegate.cpp \
     sellersedit.cpp \
-    mainedit.cpp
+    mainedit.cpp \
+    settings.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -17,7 +18,8 @@ HEADERS += \
     numberdelegate.h \
     combodelegate.h \
     sellersedit.h \
-    mainedit.h
+    mainedit.h \
+    settings.h
 
 RESOURCES += \
     ressource.qrc
