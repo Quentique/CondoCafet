@@ -34,6 +34,8 @@ Settings::Settings() : QDialog()
     colours_lay->addWidget(coloursT);
     colours->setLayout(colours_lay);
     coloursT->setContextMenuPolicy(Qt::CustomContextMenu);
+    coloursT->setSelectionMode(QAbstractItemView::SingleSelection);
+    coloursT->setSelectionBehavior(QAbstractItemView::SelectRows);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(colours);
@@ -51,6 +53,7 @@ Settings::Settings() : QDialog()
     connect(cancel, SIGNAL(clicked(bool)), this, SLOT(reject()));
     connect(coloursT, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenu(QPoint)));
        connect(create, SIGNAL(triggered(bool)), this, SLOT(createRow()));
+       connect(delete_r, SIGNAL(triggered(bool)), this, SLOT(deleteRow()));
 
     fullInformations();
 }
@@ -96,4 +99,11 @@ void Settings::createRow()
    model->setItem(model->rowCount(), 0, itemPif);
    model->setItem(model->rowCount()-1, 1, itemPof);
    coloursT->setModel(model);
+}
+
+void Settings::deleteRow()
+{
+    QStandardItemModel *model = static_cast<QStandardItemModel*>(coloursT->model());
+    model->removeRow(coloursT->selectionModel()->selection().indexes().at(0).row());
+    coloursT->setModel(model);
 }

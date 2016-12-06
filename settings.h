@@ -22,6 +22,7 @@ public:
 public slots:
     void customMenu(const QPoint &pos);
     void createRow();
+    void deleteRow();
 private:
     QSettings *settings;
     QGroupBox *colours;
