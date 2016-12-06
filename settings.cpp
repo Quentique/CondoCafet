@@ -5,6 +5,10 @@
 #include <QMap>
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include <QDebug>
+#include <QMenu>
+#include <QAction>
+#include <QCursor>
 
 Settings::Settings() : QDialog()
 {
@@ -29,6 +33,7 @@ Settings::Settings() : QDialog()
     colours_lay->addWidget(colours_explanation);
     colours_lay->addWidget(coloursT);
     colours->setLayout(colours_lay);
+    coloursT->setContextMenuPolicy(Qt::CustomContextMenu);
 
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(colours);
@@ -37,8 +42,15 @@ Settings::Settings() : QDialog()
     setLayout(layout);
     setWindowTitle(tr("Paramètres"));
 
+    create = new QAction(tr("Nouveau"));
+    create->setIcon(QIcon(":images/add.png"));
+    delete_r = new QAction(tr("Supprimer"));
+    delete_r->setIcon(QIcon(":images/minus.png"));
+
     connect(ok, SIGNAL(clicked(bool)), this, SLOT(accept()));
     connect(cancel, SIGNAL(clicked(bool)), this, SLOT(reject()));
+    connect(coloursT, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenu(QPoint)));
+       connect(create, SIGNAL(triggered(bool)), this, SLOT(createRow()));
 
     fullInformations();
 }
@@ -57,4 +69,31 @@ void Settings::fullInformations()
         it++;
     }
     coloursT->setModel(table_model);
+}
+
+void Settings::customMenu(const QPoint &pos)
+{
+   QMenu con_menu(this);
+
+   if(!coloursT->indexAt(pos).isValid())
+   {
+       delete_r->setEnabled(false);
+   }
+   else
+   {
+       delete_r->setEnabled(true);
+   }
+   con_menu.addAction(create);
+   con_menu.addAction(delete_r);
+   con_menu.exec(QCursor::pos());
+}
+void Settings::createRow()
+{
+       QStandardItemModel *model =  static_cast<QStandardItemModel*>(coloursT->model());
+    QStandardItem *itemPif = new QStandardItem("None");
+    QStandardItem *itemPof = new QStandardItem("#FFFFFF");
+
+   model->setItem(model->rowCount(), 0, itemPif);
+   model->setItem(model->rowCount()-1, 1, itemPof);
+   coloursT->setModel(model);
 }
