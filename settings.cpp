@@ -9,6 +9,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QCursor>
+#include <QHeaderView>
 
 Settings::Settings() : QDialog()
 {
@@ -21,7 +22,7 @@ Settings::Settings() : QDialog()
     cancel = new QPushButton(tr("Annuler"));
 
     QHBoxLayout *boutons = new QHBoxLayout;
-    boutons->insertSpacing(0, 170);
+   // boutons->insertSpacing(0, 170);
     boutons->addWidget(ok, 0, Qt::AlignRight);
     boutons->addWidget(cancel, 0, Qt::AlignRight);
 
@@ -36,7 +37,13 @@ Settings::Settings() : QDialog()
     coloursT->setContextMenuPolicy(Qt::CustomContextMenu);
     coloursT->setSelectionMode(QAbstractItemView::SingleSelection);
     coloursT->setSelectionBehavior(QAbstractItemView::SelectRows);
-
+    coloursT->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    coloursT->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+   //coloursT->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    coloursT->horizontalHeader()->resizeSection(1, 320);
+    coloursT->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+ //   coloursT->setColumnWidth(1, coloursT->width()/2);
+    qDebug() << coloursT->width();
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(colours);
     layout->addLayout(boutons);
@@ -71,6 +78,8 @@ void Settings::fullInformations()
         table_model->setItem(i, 1, item2);
         it++;
     }
+    table_model->setHeaderData(0, Qt::Horizontal, "Nom");
+    table_model->setHeaderData(1, Qt::Horizontal, "Couleur");
     coloursT->setModel(table_model);
 }
 
