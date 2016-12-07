@@ -10,12 +10,13 @@
 #include <QAction>
 #include <QCursor>
 #include <QHeaderView>
+#include <QColor>
 
 Settings::Settings() : QDialog()
 {
     settings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
     QMap<QString, QVariant> map;
-    map.insert("red", "#ffffff");
+    map.insert("red", "#F2F2F2");
     settings->setValue("colours", map);
     ok = new QPushButton(tr("Valider"));
     ok->setDefault(true);
@@ -39,11 +40,8 @@ Settings::Settings() : QDialog()
     coloursT->setSelectionBehavior(QAbstractItemView::SelectRows);
     coloursT->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     coloursT->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-   //coloursT->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    coloursT->horizontalHeader()->resizeSection(1, 320);
     coloursT->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
- //   coloursT->setColumnWidth(1, coloursT->width()/2);
-    qDebug() << coloursT->width();
+    coloursT->setStyleSheet("QTableView{ background-color: #F5F5F5; }");
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(colours);
     layout->addLayout(boutons);
@@ -74,6 +72,9 @@ void Settings::fullInformations()
     {
         QStandardItem *item = new QStandardItem(it.key());
         QStandardItem *item2 = new QStandardItem(it.value().toString());
+        QPixmap map(100, 100);
+        map.fill(QColor(it.value().toString()));
+        item2->setIcon(QIcon(map));
         table_model->setItem(i, 0, item);
         table_model->setItem(i, 1, item2);
         it++;
@@ -81,6 +82,8 @@ void Settings::fullInformations()
     table_model->setHeaderData(0, Qt::Horizontal, "Nom");
     table_model->setHeaderData(1, Qt::Horizontal, "Couleur");
     coloursT->setModel(table_model);
+
+
 }
 
 void Settings::customMenu(const QPoint &pos)
@@ -104,6 +107,10 @@ void Settings::createRow()
        QStandardItemModel *model =  static_cast<QStandardItemModel*>(coloursT->model());
     QStandardItem *itemPif = new QStandardItem("None");
     QStandardItem *itemPof = new QStandardItem("#FFFFFF");
+    QPixmap map(100, 100);
+    map.fill(QColor("#FFFFFF"));
+    QIcon icon(map);
+    itemPof->setIcon(icon);
 
    model->setItem(model->rowCount(), 0, itemPif);
    model->setItem(model->rowCount()-1, 1, itemPof);
