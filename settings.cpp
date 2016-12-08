@@ -11,6 +11,7 @@
 #include <QCursor>
 #include <QHeaderView>
 #include <QColor>
+#include "color_wheel.hpp"
 
 Settings::Settings() : QDialog()
 {
@@ -44,6 +45,8 @@ Settings::Settings() : QDialog()
     coloursT->setStyleSheet("QTableView{ background-color: #F5F5F5; }");
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(colours);
+    color_widgets::ColorWheel *picker = new color_widgets::ColorWheel;
+    layout->addWidget(picker);
     layout->addLayout(boutons);
 
     setLayout(layout);
