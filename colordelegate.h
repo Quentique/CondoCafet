@@ -3,7 +3,6 @@
 
 #include <QStyledItemDelegate>
 #include <QLineEdit>
-#include
 
 class ColorDelegate : public QStyledItemDelegate
 {

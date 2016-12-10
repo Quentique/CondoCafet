@@ -1,5 +1,4 @@
 #include "colordelegate.h"
-#include "colorlineedit.h"
 #include "color_wheel.hpp"
 
 ColorDelegate::ColorDelegate(QObject *parent) : QStyledItemDelegate(parent)

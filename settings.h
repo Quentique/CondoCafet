@@ -17,7 +17,7 @@ class Settings : public QDialog
     Q_OBJECT
 public:
     Settings();
-    void fullInformations();
+    void fullInformation();
 
 public slots:
     void customMenu(const QPoint &pos);
@@ -25,6 +25,7 @@ public slots:
     void deleteRow();
     void expandRow(QModelIndex index);
     void resizeRow(QModelIndex, QModelIndex index);
+    void writeInformation();
 
 private:
     QSettings *settings;

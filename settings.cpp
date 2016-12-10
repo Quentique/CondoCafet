@@ -19,9 +19,6 @@
 Settings::Settings() : QDialog()
 {
     settings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
-    QMap<QString, QVariant> map;
-    map.insert("red", "#FFF333");
-    settings->setValue("colours", map);
     ok = new QPushButton(tr("Valider"));
     ok->setDefault(true);
     cancel = new QPushButton(tr("Annuler"));
@@ -60,7 +57,6 @@ Settings::Settings() : QDialog()
     delete_r = new QAction(tr("Supprimer"));
     delete_r->setIcon(QIcon(":images/minus.png"));
 
-    connect(ok, SIGNAL(clicked(bool)), this, SLOT(accept()));
     connect(cancel, SIGNAL(clicked(bool)), this, SLOT(reject()));
     connect(coloursT, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenu(QPoint)));
        connect(create, SIGNAL(triggered(bool)), this, SLOT(createRow()));
@@ -68,12 +64,12 @@ Settings::Settings() : QDialog()
        connect(coloursT, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(expandRow(QModelIndex)));
 
 
-    fullInformations();
+    fullInformation();
     connect(coloursT->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(resizeRow(QModelIndex,QModelIndex)));
-
+    connect(ok, SIGNAL(clicked(bool)), this, SLOT(writeInformation()));
 }
 
-void Settings::fullInformations()
+void Settings::fullInformation()
 {
     QMap<QString, QVariant> colours_data = settings->value("colours").toMap();
     QStandardItemModel* table_model = new QStandardItemModel(colours_data.size(), 2);
@@ -158,4 +154,18 @@ modell->setItem(index.row(), index.column(), itemPif);
 
 coloursT->setModel(modell);
     }
+}
+
+void Settings::writeInformation()
+{
+    QStandardItemModel *model = static_cast<QStandardItemModel*>(coloursT->model());
+    QMap<QString, QVariant> map;
+    for (int i = 0 ; i != model->rowCount() ; i++)
+    {
+        map.insert(model->item(i, 0)->text(), model->item(i, 1)->text());
+        qDebug() << model->item(i, 0)->text();
+    }
+    settings->setValue("colours", map);
+
+    accept();
 }
