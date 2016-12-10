@@ -14,6 +14,7 @@ public:
 public slots:
     void showProductsEdit();
     void showSellersEdit();
+    void showSettings();
 
 private:
     QWidget *centralWidget;

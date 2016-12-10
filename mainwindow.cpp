@@ -20,13 +20,13 @@ MainWindow::MainWindow()
 
     QAction *productsManagement = new QAction(tr("Gestion des &produits"), this);
     QAction *sellersManagement = new QAction(tr("Gestion des &vendeurs"), this);
+    QAction *settingsModif = new QAction(tr("Paramètres"), this);
     admin->addAction(productsManagement);
     admin->addAction(sellersManagement);
+    admin->addSeparator();
+    admin->addAction(settingsModif);
 
     manager = new DbManager("C:\\Users\\Quentin DE MUYNCK\\Desktop\\database.db");
-
-    Settings *settings = new Settings;
-    settings->exec();
 
     setCentralWidget(centralWidget);
     setMinimumHeight(450);
@@ -36,6 +36,7 @@ MainWindow::MainWindow()
 
     connect(productsManagement, SIGNAL(triggered(bool)), this, SLOT(showProductsEdit()));
     connect(sellersManagement, SIGNAL(triggered(bool)), this, SLOT(showSellersEdit()));
+    connect(settingsModif, SIGNAL(triggered(bool)), this, SLOT(showSettings()));
     connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
 }
 
@@ -49,4 +50,10 @@ void MainWindow::showSellersEdit()
 {
     SellersEdit *sedit = new SellersEdit(manager->getDB());
     sedit->show();
+}
+
+void MainWindow::showSettings()
+{
+    Settings *settings = new Settings;
+    settings->exec();
 }
