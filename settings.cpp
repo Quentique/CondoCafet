@@ -1,4 +1,6 @@
 #include "settings.h"
+#include "colordelegate.h"
+
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QCoreApplication>
@@ -11,13 +13,14 @@
 #include <QCursor>
 #include <QHeaderView>
 #include <QColor>
+#include <QPixmap>
 #include "color_wheel.hpp"
 
 Settings::Settings() : QDialog()
 {
     settings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
     QMap<QString, QVariant> map;
-    map.insert("red", "#F2F2F2");
+    map.insert("red", "#FFF333");
     settings->setValue("colours", map);
     ok = new QPushButton(tr("Valider"));
     ok->setDefault(true);
@@ -43,10 +46,10 @@ Settings::Settings() : QDialog()
     coloursT->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     coloursT->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     coloursT->setStyleSheet("QTableView{ background-color: #F5F5F5; }");
+    coloursT->setItemDelegateForColumn(1, new ColorDelegate(this));
+    coloursT->setMinimumHeight(220);
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(colours);
-    color_widgets::ColorWheel *picker = new color_widgets::ColorWheel;
-    layout->addWidget(picker);
     layout->addLayout(boutons);
 
     setLayout(layout);
@@ -62,8 +65,12 @@ Settings::Settings() : QDialog()
     connect(coloursT, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(customMenu(QPoint)));
        connect(create, SIGNAL(triggered(bool)), this, SLOT(createRow()));
        connect(delete_r, SIGNAL(triggered(bool)), this, SLOT(deleteRow()));
+       connect(coloursT, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(expandRow(QModelIndex)));
+
 
     fullInformations();
+    connect(coloursT->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(resizeRow(QModelIndex,QModelIndex)));
+
 }
 
 void Settings::fullInformations()
@@ -125,4 +132,30 @@ void Settings::deleteRow()
     QStandardItemModel *model = static_cast<QStandardItemModel*>(coloursT->model());
     model->removeRow(coloursT->selectionModel()->selection().indexes().at(0).row());
     coloursT->setModel(model);
+}
+
+void Settings::expandRow(QModelIndex index)
+{
+    coloursT->setRowHeight(index.row(), 200);
+}
+
+void Settings::resizeRow(QModelIndex, QModelIndex index)
+{
+    coloursT->setRowHeight(index.row(), 30);
+  /*  QStandardItemModel *model = static_cast<QStandardItemModel*>(coloursT->model());
+    QStandardItem *itemm = model->itemFromIndex(index);
+
+    itemm->setIcon(icon);*/
+    if (index.column() == 1) {
+    QStandardItemModel *modell =  static_cast<QStandardItemModel*>(coloursT->model());
+ QStandardItem *itemPif = modell->itemFromIndex(index);
+ QPixmap map(100, 100);
+ map.fill(QColor(itemPif->data(Qt::DisplayRole).toString()));
+ QIcon icon(map);
+ itemPif->setIcon(icon);
+
+modell->setItem(index.row(), index.column(), itemPif);
+
+coloursT->setModel(modell);
+    }
 }

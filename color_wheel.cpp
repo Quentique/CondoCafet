@@ -320,7 +320,7 @@ QColor ColorWheel::color() const
 
 QSize ColorWheel::sizeHint() const
 {
-    return QSize(p->wheel_width*5, p->wheel_width*5);
+    return QSize(p->wheel_width*20, p->wheel_width*20);
 }
 
 qreal ColorWheel::hue() const

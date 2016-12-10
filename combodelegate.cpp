@@ -1,4 +1,5 @@
 #include "combodelegate.h"
+#include "color_wheel.hpp"
 #include <QDebug>
 #include <QSettings>
 

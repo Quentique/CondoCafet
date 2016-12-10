@@ -10,7 +10,8 @@ SOURCES += \
     sellersedit.cpp \
     mainedit.cpp \
     settings.cpp \
-    color_wheel.cpp
+    color_wheel.cpp \
+    colordelegate.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -21,7 +22,8 @@ HEADERS += \
     sellersedit.h \
     mainedit.h \
     settings.h \
-    color_wheel.hpp
+    color_wheel.hpp \
+    colordelegate.h
 
 RESOURCES += \
     ressource.qrc

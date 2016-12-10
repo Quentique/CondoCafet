@@ -56,7 +56,7 @@ class ColorWheel : public QWidget
 {
     Q_OBJECT
 
-    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged DESIGNABLE true STORED false )
+    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged DESIGNABLE true STORED false USER true )
     Q_PROPERTY(qreal hue READ hue WRITE setHue DESIGNABLE false )
     Q_PROPERTY(qreal saturation READ saturation WRITE setSaturation DESIGNABLE false )
     Q_PROPERTY(qreal value READ value WRITE setValue DESIGNABLE false )
