@@ -22,8 +22,6 @@ public:
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const Q_DECL_OVERRIDE;
 
-    static QMap<QString, QString> getColours();
-private:
-    static QMap<QString, int> my_map;
+    static QMap<QString, QVariant> getColours();
 };
 #endif // COMBODELEGATE_H

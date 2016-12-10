@@ -2,6 +2,7 @@
 #include "color_wheel.hpp"
 #include <QDebug>
 #include <QSettings>
+#include <QCoreApplication>
 
 ComboDelegate::ComboDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
@@ -12,10 +13,10 @@ QWidget* ComboDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem
     QComboBox *combo = new QComboBox(parent);
     combo->setFrame(false);
     combo->setStyleSheet("QComboBox { border: none; opacity: 0; }");
-    QMap<QString, QString> map = getColours();
-    for (QMap<QString, QString>::iterator it = map.begin() ; it!=map.end() ; it++)
+    QMap<QString, QVariant> map = getColours();
+    for (QMap<QString, QVariant>::iterator it = map.begin() ; it!=map.end() ; it++)
     {
-        combo->addItem(it.value(), it.key());
+        combo->addItem(it.key(), it.value().toString());
     }
     return combo;
 }
@@ -40,15 +41,13 @@ void ComboDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionView
 
 QString ComboDelegate::displayText(const QVariant &value, const QLocale &locale) const
 {
-    return getColours().value(value.toString());
+    return getColours().key(value);
 }
 
-QMap<QString, QString> ComboDelegate::getColours()
+QMap<QString, QVariant> ComboDelegate::getColours()
 {
-    QMap<QString, QString> map;
-    map.insert("#RRRRRR", "Red");
-    map.insert("#FFFFFF", "Aucune");
-    map.insert("#FFF000", "Orange");
+    QSettings *settings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
+    QMap<QString, QVariant> map = settings->value("colours").toMap();
 
     return map;
 }
