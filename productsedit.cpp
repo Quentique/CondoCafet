@@ -29,7 +29,7 @@ ProductsEdit::ProductsEdit(QSqlDatabase *db) : MainEdit(db, "products")
 
     setWindowTitle(tr("Édition des produits"));
     connect(add, SIGNAL(clicked(bool)), this, SLOT(addRow()));
-    connect(model, SIGNAL(beforeUpdate(int,QSqlRecord&)), this, SLOT(check(int,QSqlRecord&)));
+    connect(static_cast<QSqlTableModel*>(model->sourceModel()), SIGNAL(beforeUpdate(int,QSqlRecord&)), this, SLOT(check(int,QSqlRecord&)));
 }
 
 void ProductsEdit::check(int, QSqlRecord &record)
@@ -43,11 +43,11 @@ void ProductsEdit::check(int, QSqlRecord &record)
 void ProductsEdit::addRow()
 {
     qDebug() << "DONE";
-    QSqlQuery query(model->database());
+    QSqlQuery query(static_cast<QSqlTableModel*>(model->sourceModel())->database());
     query.prepare("INSERT INTO products (name, price, colour, sold) VALUES (:object, 1.00, '#FFFFFF', 0)");
     query.bindValue(":object", tr("Nouveau"));
     query.exec();
     qDebug() << query.lastError().text();
-    model->sort(3, Qt::AscendingOrder);
-    model->select();
+    static_cast<QSqlTableModel*>(model->sourceModel())->sort(3, Qt::AscendingOrder);
+    static_cast<QSqlTableModel*>(model->sourceModel())->select();
 }

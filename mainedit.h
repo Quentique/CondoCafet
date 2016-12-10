@@ -6,7 +6,8 @@
 #include <QSqlTableModel>
 #include <QSqlDatabase>
 #include <QPushButton>
-
+#include <QLineEdit>
+#include <QSortFilterProxyModel>
 
 class MainEdit : public QWidget
 {
@@ -18,11 +19,14 @@ public slots:
     void addRow();
     void selectRow();
     void deleteRow();
+    void sortBy();
 
 protected:
     QPushButton *end, *add, *remove;
+    QLineEdit *sort;
     QTableView *view;
-    QSqlTableModel *model;
+    QSqlTableModel *Smodel;
+    QSortFilterProxyModel *model;
     QString *table;
 };
 #endif // MAINEDIT_H

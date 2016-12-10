@@ -12,11 +12,16 @@ MainEdit::MainEdit(QSqlDatabase *db, QString gtable) : QWidget()
 {
     table = new QString(gtable);
 
-    model = new QSqlTableModel(0, *db);
-    model->setTable(*table);
-    model->setEditStrategy(QSqlTableModel::OnFieldChange);
+    Smodel = new QSqlTableModel(0, *db);
+    Smodel->setTable(*table);
+    Smodel->setEditStrategy(QSqlTableModel::OnFieldChange);
 
-    model->select();
+    Smodel->select();
+
+    model = new QSortFilterProxyModel;
+    model->setDynamicSortFilter(true);
+    model->setFilterKeyColumn(1);
+    model->setSourceModel(Smodel);
 
     view = new QTableView(this);
     view->setModel(model);
@@ -39,6 +44,10 @@ MainEdit::MainEdit(QSqlDatabase *db, QString gtable) : QWidget()
     remove->setIcon(QIcon(":images/delete.png"));
     remove->setEnabled(false);
 
+    sort = new QLineEdit;
+    sort->setClearButtonEnabled(true);
+    sort->setPlaceholderText(tr("Nom d'un produit"));
+
     QVBoxLayout *buttons = new QVBoxLayout;
     buttons->addWidget(add, 1, Qt::AlignTop);
     buttons->addWidget(remove, 1, Qt::AlignTop);
@@ -49,6 +58,7 @@ MainEdit::MainEdit(QSqlDatabase *db, QString gtable) : QWidget()
     Lview->addLayout(buttons);
 
     QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(sort, 0, Qt::AlignRight);
     layout->addLayout(Lview);
     layout->addWidget(end, 0, Qt::AlignRight);
 
@@ -56,6 +66,7 @@ MainEdit::MainEdit(QSqlDatabase *db, QString gtable) : QWidget()
     connect(add, SIGNAL(clicked(bool)), this, SLOT(addRow()));
     connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(selectRow()));
     connect(remove, SIGNAL(clicked(bool)), this, SLOT(deleteRow()));
+    connect(sort, SIGNAL(textChanged(QString)), this, SLOT(sortBy()));
 
     setLayout(layout);
     setWindowFlags(Qt::Dialog);
@@ -74,12 +85,19 @@ void MainEdit::selectRow()
 
 void MainEdit::deleteRow()
 {
-    int id = model->record(view->selectionModel()->selection().indexes().at(0).row()).field("id").value().toInt();
-    QSqlQuery query(model->database());
+    int id = Smodel->record(view->selectionModel()->selection().indexes().at(0).row()).field("id").value().toInt();
+    QSqlQuery query(Smodel->database());
     query.prepare("DELETE FROM " + *table + " WHERE id = :id");
     query.bindValue(":id", id);
     query.exec();
     qDebug() << query.lastError().text() << " " << *table << " " << id;
-    model->select();
+    Smodel->select();
     remove->setEnabled(false);
+}
+
+void MainEdit::sortBy()
+{
+    QRegExp reg("(" + sort->text() +")", Qt::CaseInsensitive);
+
+    model->setFilterRegExp(reg);
 }

@@ -18,18 +18,18 @@ SellersEdit::SellersEdit(QSqlDatabase *db) : MainEdit(db, "sellers")
 
     setWindowTitle(tr("Modification des vendeurs"));
     connect(add, SIGNAL(clicked(bool)), this, SLOT(addRow()));
-    connect(model, SIGNAL(beforeUpdate(int,QSqlRecord&)), this, SLOT(check(int,QSqlRecord&)));
+    connect(static_cast<QSqlTableModel*>(model->sourceModel()), SIGNAL(beforeUpdate(int,QSqlRecord&)), this, SLOT(check(int,QSqlRecord&)));
 }
 
 void SellersEdit::addRow()
 {
-    QSqlQuery query(model->database());
+    QSqlQuery query(static_cast<QSqlTableModel*>(model->sourceModel())->database());
     query.prepare("INSERT INTO sellers (name, class, amount) VALUES (:name, :class, 0)");
     query.bindValue(":name", tr("'Prénom NOM'"));
     query.bindValue(":class", tr("Classe"));
     query.exec();
     qDebug() << query.lastError().text();
-    model->select();
+    static_cast<QSqlTableModel*>(model->sourceModel())->select();
 }
 
 void SellersEdit::check(int, QSqlRecord &record)
