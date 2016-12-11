@@ -18,11 +18,13 @@ public slots:
     void showProductsEdit();
     void showSellersEdit();
     void showSettings();
+    void actualiseTable();
 
 private:
     QWidget *centralWidget;
     DbManager *manager;
-
+    QTableWidget *sold_details;
+    Seller *seller;
 };
 
 #endif // MAINWINDOW_H
