@@ -11,7 +11,11 @@ SOURCES += \
     mainedit.cpp \
     settings.cpp \
     color_wheel.cpp \
-    colordelegate.cpp
+    colordelegate.cpp \
+    vente.cpp \
+    product.cpp \
+    article.cpp \
+    seller.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -23,7 +27,11 @@ HEADERS += \
     mainedit.h \
     settings.h \
     color_wheel.hpp \
-    colordelegate.h
+    colordelegate.h \
+    vente.h \
+    product.h \
+    article.h \
+    seller.h
 
 RESOURCES += \
     ressource.qrc
