@@ -7,7 +7,7 @@ class Article
 {
 public:
     Article(Product *g_product, int g_quantity);
-    Product getProduct();
+    Product* getProduct();
     void addQuantity(int quantity);
     int getQuantity();
     double getTotal();

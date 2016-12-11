@@ -6,7 +6,7 @@ Vente::Vente(int g_number) : number(g_number)
     total = 0;
 }
 
-Vente::addArticle(Product *g_product, int g_quantity)
+void Vente::addArticle(Product *g_product, int g_quantity)
 {
     if (!produits->contains(g_product->getName()))
     {

@@ -6,6 +6,7 @@
 #include <QMenu>
 #include <QAction>
 #include <QMenuBar>
+#include <QTableWidget>
 
 MainWindow::MainWindow()
 {
@@ -33,6 +34,9 @@ MainWindow::MainWindow()
     setMinimumWidth(900);
     setWindowTitle("CondoCafèt'");
     show();
+    QTableWidget *widget = new QTableWidget;
+    widget->insertRow(1);
+    widget->show();
 
     connect(productsManagement, SIGNAL(triggered(bool)), this, SLOT(showProductsEdit()));
     connect(sellersManagement, SIGNAL(triggered(bool)), this, SLOT(showSellersEdit()));

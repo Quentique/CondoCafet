@@ -3,7 +3,10 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QTableWidget>
 #include "dbmanager.h"
+#include "vente.h"
+#include "seller.h"
 
 class MainWindow : public QMainWindow
 {

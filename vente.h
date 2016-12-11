@@ -9,7 +9,6 @@ class Vente
 {
 public:
     Vente(int g_number);
-    QStandardItemModel getModel();
     void addArticle(Product* g_product, int g_quantity);
     void deleteArticle(Product* g_product, int quantity = 0);
 
