@@ -10,6 +10,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QCoreApplication>
+#include <QDebug>
 static QSize myGetQTableWidgetSize(QTableWidget *t) {
    int w = t->verticalHeader()->width() + 4; // +4 seems to be needed
    for (int i = 0; i < t->columnCount(); i++)
@@ -22,7 +24,15 @@ static QSize myGetQTableWidgetSize(QTableWidget *t) {
 MainWindow::MainWindow()
 {
     centralWidget = new QWidget();
-    seller = 0;
+    seller = new Seller("Quentin0", "2A");
+    current = new Vente(15623);
+    current->addArticle(new Product("Chocolat", 10.20, "Beu"), 5);
+    current->addArticle(new Product("Bonbons", 152, "rouge"), 1);
+
+    psettings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
+
+    if(psettings->value("sold", -1).toInt() == -1)
+        psettings->setValue("sold", 0);
 
     QMenu *fichier = menuBar()->addMenu(tr("&Fichier"));
 
@@ -42,16 +52,16 @@ MainWindow::MainWindow()
     manager = new DbManager("C:\\Users\\Quentin DE MUYNCK\\Desktop\\database.db");
 
     sold_details = new QTableWidget(1, 4);
-    sold_details->setMaximumWidth(300);
     sold_details->setSelectionMode(QAbstractItemView::NoSelection);
     sold_details->setEditTriggers(QAbstractItemView::NoEditTriggers);
     sold_details->setShowGrid(false);
-    sold_details->horizontalHeader()->setVisible(false);
     sold_details->verticalHeader()->setVisible(false);
-    sold_details->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+    QStringList name;
+    name << "Quantité" << "Dénomination" << "" << "";
+    sold_details->setHorizontalHeaderLabels(name);
+   sold_details->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     sold_details->setMinimumSize(myGetQTableWidgetSize(sold_details));
-    sold_details->setMinimumHeight((height()*0.5));
-    sold_details->setFrameStyle(QFrame::NoFrame);
+    //sold_details->setMinimumHeight((height()*0.5));
     sold_details->setFocusPolicy(Qt::NoFocus);
     actualiseTable();
 
@@ -59,7 +69,7 @@ MainWindow::MainWindow()
     layout->addWidget(sold_details, 4, Qt::AlignRight);
 
     centralWidget->setLayout(layout);
-    //centralWidget->layout()->setSizeConstraint(QLayout::SetMinimumSize);
+    centralWidget->layout()->setSizeConstraint(QLayout::SetMinimumSize);
 
     setCentralWidget(centralWidget);
    // setWindowState(Qt::WindowFullScreen);
@@ -100,7 +110,38 @@ void MainWindow::actualiseTable()
         item->setTextAlignment(Qt::AlignCenter);
         item->setFont(QFont("Arial", 20));
         sold_details->setItem(0, 0, item);
-        sold_details->setColumnWidth(0, sold_details->width());
-        sold_details->setRowHeight(0, sold_details->height());
+        /*sold_details->setColumnWidth(0, sold_details->width());
+        sold_details->setRowHeight(0, sold_details->height());*/
+
+    }
+    else
+    {
+        sold_details->clear();
+        sold_details->setRowCount(0);
+        sold_details->setColumnCount(4);
+        QStringList name;
+        name << "Quantité" << "Dénomination" << "" << "";
+        sold_details->setHorizontalHeaderLabels(name);
+        if(current!=0)
+        {
+            for (QMap<QString, Article>::iterator it = current->begin() ; it != current->end() ; it++)
+            {
+                QTableWidgetItem *item1 = new QTableWidgetItem(QString::number(it.value().getQuantity()));
+                QTableWidgetItem *item2 = new QTableWidgetItem(it.key());
+                sold_details->insertRow(sold_details->rowCount());
+                sold_details->setItem(sold_details->rowCount()-1, 0, item1);
+                sold_details->setItem(sold_details->rowCount()-1, 1, item2);
+                qDebug() << it.value().getQuantity();
+            }
+            QTableWidgetItem *item1 = new QTableWidgetItem("TOTAL :");
+            QTableWidgetItem *item2 = new QTableWidgetItem(QString::number(current->getTotal()) + " €");
+            sold_details->insertRow(sold_details->rowCount());
+            sold_details->setItem(sold_details->rowCount()-1, 2, item1);
+            sold_details->setItem(sold_details->rowCount()-1, 3, item2);
+        }
+       /* sold_details->setColumnWidth(0, sold_details->width()*0.2);
+        sold_details->setColumnWidth(1, sold_details->width()*0.7);
+        sold_details->setColumnWidth(2, sold_details->width()*0.15);
+        sold_details->setColumnWidth(3, sold_details->width()*0.15);*/
     }
 }

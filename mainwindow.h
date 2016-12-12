@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QLabel>
 #include <QTableWidget>
+#include <QSettings>
 #include "dbmanager.h"
 #include "vente.h"
 #include "seller.h"
@@ -25,6 +26,8 @@ private:
     DbManager *manager;
     QTableWidget *sold_details;
     Seller *seller;
+    Vente *current;
+    QSettings *psettings;
 };
 
 #endif // MAINWINDOW_H
