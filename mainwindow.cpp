@@ -13,6 +13,8 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QKeySequence>
+#include <QSqlQuery>
+#include "sellerselector.h"
 static QSize myGetQTableWidgetSize(QTableWidget *t) {
    int w = t->verticalHeader()->width() + 4; // +4 seems to be needed
    for (int i = 0; i < t->columnCount(); i++)
@@ -62,8 +64,7 @@ MainWindow::MainWindow()
         sellerd->setText(tr("VERROUILLÉ"));
     } else { sellerd->setText(seller->getName()); }
 
-    soldd = new QLineEdit;
-    soldd->setReadOnly(true);
+    soldd = new QLabel;
 
     countd = new QDoubleSpinBox;
     countd->setReadOnly(true);
@@ -150,6 +151,7 @@ MainWindow::MainWindow()
         coins[i] = new QPushButton;
         coins[i]->setIcon(QIcon(QPixmap(":/coins/" + money.at(i) + ".png")));
         coins[i]->setToolTip(money.at(i));
+        coins[i]->setIconSize(QSize(70, 70));
 
     }
 
@@ -200,6 +202,7 @@ MainWindow::MainWindow()
     connect(sellersManagement, SIGNAL(triggered(bool)), this, SLOT(showSellersEdit()));
     connect(settingsModif, SIGNAL(triggered(bool)), this, SLOT(showSettings()));
     connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
+    connect(sign, SIGNAL(clicked(bool)), this, SLOT(sign_slot()));
 }
 
 void MainWindow::showProductsEdit()
@@ -265,5 +268,50 @@ void MainWindow::actualiseTable()
         sold_details->setColumnWidth(1, sold_details->width()*0.7);
         sold_details->setColumnWidth(2, sold_details->width()*0.15);
         sold_details->setColumnWidth(3, sold_details->width()*0.15);*/
+    }
+}
+
+void MainWindow::sign_slot()
+{
+    if (sign->text() == tr("Sign In"))
+    {
+        SellerSelector *selector = new SellerSelector(0, manager->getDB());
+        selector->exec();
+        int result = selector->getResult();
+        QSqlQuery query("SELECT name, class FROM sellers WHERE id = " + QString::number(result), *manager->getDB());
+        query.next();
+        Seller *sellerr = new Seller(query.value("name").toString(), query.value("class").toString());
+        seller = sellerr;
+        actualiseVendeur();
+        sign->setText(tr("Sign Out"));
+    }
+    else
+    {
+        QSqlQuery query("SELECT amount FROM sellers WHERE name = '" + seller->getName() + "'", *manager->getDB());
+        query.next();
+        double amount = query.value("amount").toDouble();
+        qDebug() << amount;
+        amount += seller->getAmount();
+        query.prepare("UPDATE sellers SET amount = ? WHERE name = ?");
+        query.bindValue(0, amount);
+        query.bindValue(1, seller->getName());
+        query.exec();
+        delete seller;
+        seller = 0;
+        actualiseVendeur();
+        sign->setText(tr("Sign In"));
+    }
+}
+
+void MainWindow::actualiseVendeur()
+{
+    if (seller != 0) {
+    actualiseTable();
+    sellerd->setText(seller->getName());
+    soldd->setText("Vente N°" + QString::number(psettings->value("sold").toInt() + 1));
+    } else {
+        actualiseTable();
+        sellerd->setText("VERROUILLÉ");
+        soldd->setText("");
     }
 }

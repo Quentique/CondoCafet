@@ -8,9 +8,10 @@ class Seller
 {
 public:
     Seller(QString g_name, QString g_class);
-    ~Seller();
     void addSold(double g_price);
     QString getName();
+    int getSoldCount();
+    double getAmount();
 
 private:
     QString name, classe;

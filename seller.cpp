@@ -14,3 +14,6 @@ QString Seller::getName()
 {
     return name;
 }
+
+int Seller::getSoldCount() { return nb_ventes; }
+double Seller::getAmount() { return sold; }

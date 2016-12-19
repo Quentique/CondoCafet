@@ -23,6 +23,8 @@ public slots:
     void showSellersEdit();
     void showSettings();
     void actualiseTable();
+    void sign_slot();
+    void actualiseVendeur();
 
 private:
     QWidget *centralWidget;
@@ -31,7 +33,8 @@ private:
     Seller *seller;
     Vente *current;
     QSettings *psettings;
-    QLineEdit *dated, *sellerd, *soldd, *totald;
+    QLineEdit *dated, *sellerd, *totald;
+    QLabel *soldd;
     QPushButton *sign, *rush, *pay, *cancel, *retour;
     QPushButton *calc[14], *coins[12];
     QDoubleSpinBox *countd;

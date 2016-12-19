@@ -15,7 +15,8 @@ SOURCES += \
     vente.cpp \
     product.cpp \
     article.cpp \
-    seller.cpp
+    seller.cpp \
+    sellerselector.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -31,7 +32,8 @@ HEADERS += \
     vente.h \
     product.h \
     article.h \
-    seller.h
+    seller.h \
+    sellerselector.h
 
 RESOURCES += \
     ressource.qrc
