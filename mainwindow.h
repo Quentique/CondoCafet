@@ -5,6 +5,9 @@
 #include <QLabel>
 #include <QTableWidget>
 #include <QSettings>
+#include <QLineEdit>
+#include <QDoubleSpinBox>
+#include <QPushButton>
 #include "dbmanager.h"
 #include "vente.h"
 #include "seller.h"
@@ -28,6 +31,10 @@ private:
     Seller *seller;
     Vente *current;
     QSettings *psettings;
+    QLineEdit *dated, *sellerd, *soldd, *totald;
+    QPushButton *sign, *rush, *pay, *cancel, *retour;
+    QPushButton *calc[14], *coins[12];
+    QDoubleSpinBox *countd;
 };
 
 #endif // MAINWINDOW_H

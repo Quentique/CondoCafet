@@ -10,6 +10,7 @@ public:
     Seller(QString g_name, QString g_class);
     ~Seller();
     void addSold(double g_price);
+    QString getName();
 
 private:
     QString name, classe;

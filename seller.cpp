@@ -9,3 +9,8 @@ void Seller::addSold(double g_price)
     sold += g_price;
     nb_ventes++;
 }
+
+QString Seller::getName()
+{
+    return name;
+}
