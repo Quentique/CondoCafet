@@ -412,7 +412,12 @@ void MainWindow::touchC()
     if (multiplyby != 0)
     {
         multiplyby = 0;
-        totald->setText("0 ×");
+        showTotal();
+    }
+    else if (!sold_details->selectedRanges().isEmpty())
+    {
+        current->deleteArticle(product_list->find(sold_details->item(sold_details->selectedRanges().first().bottomRow(), 1)->text()).value());
+        actualiseTable();
     }
 }
 

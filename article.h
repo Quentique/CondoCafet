@@ -12,6 +12,7 @@ public:
     void addQuantity(int quantity);
     int getQuantity();
     double getTotal();
+    void setQuantity(int g_quantity);
 
 private:
     Product *produit;

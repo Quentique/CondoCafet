@@ -13,6 +13,11 @@ Product* Article::getProduct()
 {
     return produit;
 }
+void Article::setQuantity(int g_quantity)
+{
+    quantite = g_quantity;
+    prix_total = produit->getPrice() * quantite;
+}
 
 double Article::getTotal()
 {

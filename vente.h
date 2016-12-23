@@ -14,6 +14,7 @@ public:
     double getTotal();
     int getNumber();
     Article getArticle(int pos);
+    void setQuantity(Product *g_product, int g_quantity);
 
 private:
     double total;
