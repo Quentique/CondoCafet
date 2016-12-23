@@ -1,5 +1,9 @@
 #include "article.h"
 
+Article::Article()
+{
+
+}
 Article::Article(Product *g_product, int g_quantity) : produit(g_product), quantite(g_quantity)
 {
     prix_total = quantite * g_product->getPrice();

@@ -6,6 +6,7 @@
 class Article
 {
 public:
+    Article();
     Article(Product *g_product, int g_quantity);
     Product* getProduct();
     void addQuantity(int quantity);

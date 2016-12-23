@@ -32,6 +32,8 @@ public slots:
     void cancelSell();
     void showTotal();
     void multiply(int gnumber);
+    void touchC();
+    void addProduct(QString gname);
 
 private:
     int multiplyby;
@@ -47,7 +49,7 @@ private:
     QPushButton *calc[16], *coins[12];
     QDoubleSpinBox *countd;
     QSignalMapper *products_mapper, *calc_mapper;
-    QMap<QString, Product*> *product_list;
+    QHash<QString, Product*> *product_list;
 };
 
 #endif // MAINWINDOW_H

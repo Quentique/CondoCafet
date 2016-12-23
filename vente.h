@@ -5,7 +5,7 @@
 #include "article.h"
 #include <QStandardItemModel>
 
-class Vente : public QMap<QString, Article>
+class Vente : public QVector<QString>
 {
 public:
     Vente(int g_number);
@@ -13,10 +13,12 @@ public:
     void deleteArticle(Product* g_product, int quantity = 0);
     double getTotal();
     int getNumber();
+    Article getArticle(int pos);
 
 private:
     double total;
     const int number;
+    QVector<Article> *articles;
 };
 
 #endif // VENTE_H

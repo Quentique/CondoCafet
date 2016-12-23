@@ -3,6 +3,7 @@
 Vente::Vente(int g_number) : number(g_number)
 {
     total = 0;
+    articles = new QVector<Article>;
 }
 
 void Vente::addArticle(Product *g_product, int g_quantity)
@@ -10,11 +11,15 @@ void Vente::addArticle(Product *g_product, int g_quantity)
     if (!contains(g_product->getName()))
     {
         Article article(g_product, g_quantity);
-        insert(g_product->getName(), article);
+        total += article.getTotal();
+        append(g_product->getName());
+        articles->append(article);
+
     } else {
-        Article article = find(g_product->getName()).value();
+        Article article = articles->at(indexOf(g_product->getName()));
+        total += g_product->getPrice() * g_quantity;
         article.addQuantity(g_quantity);
-        insert(g_product->getName(), article);
+        articles->replace(indexOf(g_product->getName()), article);
     }
 }
 
@@ -26,4 +31,9 @@ double Vente::getTotal()
 int Vente::getNumber()
 {
     return number;
+}
+
+Article Vente::getArticle(int pos)
+{
+    return articles->at(pos);
 }

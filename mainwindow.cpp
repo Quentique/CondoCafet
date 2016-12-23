@@ -98,10 +98,12 @@ MainWindow::MainWindow()
     sold_details = new QTableWidget(1, 4);
     sold_details->setSelectionMode(QAbstractItemView::NoSelection);
     sold_details->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    sold_details->setShowGrid(false);
+    sold_details->setSelectionBehavior(QAbstractItemView::SelectRows);
+   // sold_details->setShowGrid(false);
     sold_details->verticalHeader()->setVisible(false);
     sold_details->setFocusPolicy(Qt::NoFocus);
     sold_details->horizontalHeader()->setStretchLastSection(true);
+        sold_details->setSortingEnabled(false);
     totald->setMinimumWidth(sold_details->sizeHint().width());
     actualiseTable();
 
@@ -183,7 +185,9 @@ MainWindow::MainWindow()
 
     QMap<QString, QVariant> cat = psettings->value("colours").toMap();
     QSqlQuery query("SELECT name, price, colour FROM products ORDER BY colour", *manager->getDB());
-    product_list = new QMap<QString, Product*>;
+    product_list = new QHash<QString, Product*>;
+    products_mapper = new QSignalMapper;
+
     while (query.next())
     {
         Product *produit = new Product(query.value("name").toString(), query.value("price").toDouble(), query.value("colour").toString());
@@ -194,12 +198,14 @@ MainWindow::MainWindow()
     int cell = 0;
     for (QMap<QString, QVariant>::iterator it = cat.begin() ; it != cat.end() ; it++)
     {
-        for (QMap<QString, Product*>::iterator its = product_list->begin() ; its != product_list->end() ; its++)
+        for (QHash<QString, Product*>::iterator its = product_list->begin() ; its != product_list->end() ; its++)
         {
             if (its.value()->getCategorie() == it.value().toString())
             {
                 QPushButton *button = new QPushButton(its.key() + "\n" + QString::number(its.value()->getPrice(), 'g', 2) + " €");
                 button->setStyleSheet("background-color: " + its.value()->getCategorie());
+                products_mapper->setMapping(button, its.key());
+                connect(button, SIGNAL(clicked(bool)), products_mapper, SLOT(map()));
                 products_lay->addWidget(button, cell, number_columns);
                 cell++;
                 if(cell>5) {
@@ -211,6 +217,7 @@ MainWindow::MainWindow()
         number_columns++;
         cell = 0;
     }
+
 
     QHBoxLayout *options = new QHBoxLayout;
     options->addLayout(moneylay);
@@ -250,6 +257,7 @@ MainWindow::MainWindow()
     connect(cancel, SIGNAL(clicked(bool)), this, SLOT(cancelSell()));
     connect(totalmd, SIGNAL(clicked(bool)), this, SLOT(showTotal()));
     connect(calc_mapper, SIGNAL(mapped(int)), this, SLOT(multiply(int)));
+    connect(products_mapper, SIGNAL(mapped(QString)), this, SLOT(addProduct(QString)));
 }
 
 void MainWindow::showProductsEdit()
@@ -296,23 +304,23 @@ void MainWindow::actualiseTable()
         sold_details->setHorizontalHeaderLabels(name);
         if(current!=0)
         {
-            for (QMap<QString, Article>::iterator it = current->begin() ; it != current->end() ; it++)
+            for (int i = 0 ; i != current->count() ; i++)
             {
-                QTableWidgetItem *item1 = new QTableWidgetItem(QString::number(it.value().getQuantity()) + " ×");
-                QTableWidgetItem *item2 = new QTableWidgetItem(it.key());
+                QTableWidgetItem *item1 = new QTableWidgetItem(QString::number(current->getArticle(i).getQuantity()) + " ×");
+                QTableWidgetItem *item2 = new QTableWidgetItem(current->at(i));
                 sold_details->insertRow(sold_details->rowCount());
                 sold_details->setItem(sold_details->rowCount()-1, 0, item1);
                 sold_details->setItem(sold_details->rowCount()-1, 1, item2);
-                qDebug() << it.value().getQuantity();
             }
-            QTableWidgetItem *item1 = new QTableWidgetItem("TOTAL :");
-            QTableWidgetItem *item2 = new QTableWidgetItem(QString::number(current->getTotal()) + " €");
-            sold_details->insertRow(sold_details->rowCount());
-            sold_details->setItem(sold_details->rowCount()-1, 2, item1);
-            sold_details->setItem(sold_details->rowCount()-1, 3, item2);
+           // sold_details->setCurrentCell(sold_details->rowCount()-1, 0);
+            sold_details->setRangeSelected(QTableWidgetSelectionRange(sold_details->rowCount()-1, 0, sold_details->rowCount()-1, sold_details->columnCount()-1), true);
             sold_details->resizeRowsToContents();
             sold_details->resizeColumnToContents(0);
             sold_details->horizontalHeader()->setStretchLastSection(true);
+            if (totald->text().contains("TOTAL"))
+            {
+                showTotal();
+            }
         }
        /* sold_details->setColumnWidth(0, sold_details->width()*0.2);
         sold_details->setColumnWidth(1, sold_details->width()*0.7);
@@ -383,7 +391,7 @@ void MainWindow::showTotal()
 {
     qDebug() << "cool";
     if (current != 0) {
-    totald->setText("TOTAL : " + QString::number(current->getTotal()) + " €");
+    totald->setText("TOTAL : " + QString::number(current->getTotal(), 'f', 2) + " €");
     qDebug() << "work;";
     multiplyby = 0;
     }
@@ -394,7 +402,6 @@ void MainWindow::multiply(int gnumber)
     if (current != 0) {
     multiplyby = (multiplyby==0) ? gnumber : QString(QString::number(multiplyby) + QString::number(gnumber)).toInt();
     totald->setText(QString::number(multiplyby) + " x");
-
     }
 }
 
@@ -404,5 +411,14 @@ void MainWindow::touchC()
     {
         multiplyby = 0;
         totald->setText("0 x");
+    }
+}
+
+void MainWindow::addProduct(QString gname)
+{
+    if (current != 0)
+    {
+        current->addArticle(product_list->find(gname).value(), (multiplyby!=0) ? multiplyby : 1);
+        actualiseTable();
     }
 }
