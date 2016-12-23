@@ -8,6 +8,8 @@
 #include <QLineEdit>
 #include <QDoubleSpinBox>
 #include <QPushButton>
+#include <QSignalMapper>
+
 #include "dbmanager.h"
 #include "vente.h"
 #include "seller.h"
@@ -35,9 +37,10 @@ private:
     QSettings *psettings;
     QLineEdit *dated, *sellerd, *totald;
     QLabel *soldd;
-    QPushButton *sign, *rush, *pay, *cancel, *retour;
-    QPushButton *calc[14], *coins[12];
+    QPushButton *sign, *rush, *pay, *cancel, *retour, *totalmd;
+    QPushButton *calc[16], *coins[12];
     QDoubleSpinBox *countd;
+    QSignalMapper *products_mapper;
 };
 
 #endif // MAINWINDOW_H

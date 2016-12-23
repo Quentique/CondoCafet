@@ -27,6 +27,7 @@ MainEdit::MainEdit(QSqlDatabase *db, QString gtable) : QWidget()
     view->setModel(model);
     view->setSortingEnabled(true);
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    view->verticalHeader()->setVisible(false);
     view->setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
     view->setSelectionBehavior(QAbstractItemView::SelectRows);
     view->setSelectionMode(QAbstractItemView::SingleSelection);

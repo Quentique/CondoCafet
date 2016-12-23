@@ -108,7 +108,6 @@ MainWindow::MainWindow()
     for (int i = 0 ; i < 10 ; i++)
     {
         calc[i] = new QPushButton(QString::number(i));
-        calc[i]->setShortcut(QKeySequence("NumPad" + QString::number(i)));
     }
     calclay->addWidget(calc[0], 3, 0);
     calclay->addWidget(calc[1], 2, 0);
@@ -137,11 +136,13 @@ MainWindow::MainWindow()
     pay = new QPushButton(tr("PAYER"));
     cancel = new QPushButton(tr("ANNULER"));
     retour = new QPushButton(tr("Retour"));
+    totalmd = new QPushButton(tr("TOTAL"));
 
     QVBoxLayout *cash = new QVBoxLayout;
     cash->addWidget(pay, 0);
     cash->addWidget(cancel, 0);
-    cash->addWidget(retour, 0, Qt::AlignTop);
+    cash->addWidget(retour, 0);
+    cash->addWidget(totalmd, 2, Qt::AlignTop);
 
     QStringList money;
     money << "0.01" << "0.02" << "0.05" << "0.10" << "0.20" << "0.50" << "1" << "2" << "5" << "10" << "20" << "50";
@@ -169,6 +170,32 @@ MainWindow::MainWindow()
     moneylay->addWidget(coins[10], 1, 1);
     moneylay->addWidget(coins[11], 0, 1);
 
+    QMap<QString, QVariant> cat = psettings->value("colours").toMap();
+    QSqlQuery query("SELECT name, price, colour FROM products ORDER BY colour", *manager->getDB());
+    QGridLayout *products_lay = new QGridLayout;
+    int number_columns = 0;
+    int cell = 0;
+    for (QMap<QString, QVariant>::iterator it = cat.begin() ; it != cat.end() ; it++)
+    {
+        while (query.next())
+        {
+            if (query.value("colour").toString() == it.value().toString())
+            {
+                QPushButton *button = new QPushButton(query.value("name").toString() + "\n" + query.value("price").toString() + " €");
+                button->setStyleSheet("background-color: " + query.value("colour").toString());
+                products_lay->addWidget(button, cell, number_columns);
+                cell++;
+                if(cell>5) {
+                    number_columns++;
+                    cell = 0;
+                }
+            }
+        }
+        query.first();
+        number_columns++;
+        cell = 0;
+    }
+
     QHBoxLayout *options = new QHBoxLayout;
     options->addLayout(moneylay);
     options->addLayout(cash);
@@ -180,6 +207,7 @@ MainWindow::MainWindow()
 
     QGridLayout *grill = new QGridLayout;
     grill->addWidget(sold_details, 0, 1);
+    grill->addLayout(products_lay, 0, 0);
     grill->addLayout(calclay, 1, 1);
     grill->addLayout(options, 1, 0);
 
@@ -229,6 +257,7 @@ void MainWindow::actualiseTable()
     {
         sold_details->clear();
         sold_details->setColumnCount(1);
+        sold_details->horizontalHeader()->setVisible(false);
         QTableWidgetItem *item = new QTableWidgetItem(tr("VERROUILLE"));
         item->setTextAlignment(Qt::AlignCenter);
         item->setFont(QFont("Arial", 20));
@@ -241,9 +270,10 @@ void MainWindow::actualiseTable()
     {
         sold_details->clear();
         sold_details->setRowCount(0);
-        sold_details->setColumnCount(4);
+        sold_details->setColumnCount(2);
         QStringList name;
-        name << "Qt" << "Dénomination" << "" << "";
+        name << "Qt" << "Dénomination";
+        sold_details->horizontalHeader()->setVisible(true);
         sold_details->setHorizontalHeaderLabels(name);
         if(current!=0)
         {
@@ -263,6 +293,7 @@ void MainWindow::actualiseTable()
             sold_details->setItem(sold_details->rowCount()-1, 3, item2);
             sold_details->resizeRowsToContents();
             sold_details->resizeColumnToContents(0);
+            sold_details->horizontalHeader()->setStretchLastSection(true);
         }
        /* sold_details->setColumnWidth(0, sold_details->width()*0.2);
         sold_details->setColumnWidth(1, sold_details->width()*0.7);
