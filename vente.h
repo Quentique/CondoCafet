@@ -12,6 +12,7 @@ public:
     void addArticle(Product* g_product, int g_quantity);
     void deleteArticle(Product* g_product, int quantity = 0);
     double getTotal();
+    int getNumber();
 
 private:
     double total;

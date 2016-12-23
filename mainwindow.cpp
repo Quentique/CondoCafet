@@ -29,6 +29,7 @@ MainWindow::MainWindow()
     centralWidget = new QWidget();
     seller = 0;
     current = 0;
+    multiplyby = 0;
    /* current->addArticle(new Product("Chocolat", 10.20, "Beu"), 5);
     current->addArticle(new Product("Bonbons", 152, "rouge"), 1);*/
 
@@ -105,9 +106,13 @@ MainWindow::MainWindow()
     actualiseTable();
 
     QGridLayout *calclay = new QGridLayout;
+
+    calc_mapper = new QSignalMapper;
     for (int i = 0 ; i < 10 ; i++)
     {
         calc[i] = new QPushButton(QString::number(i));
+        calc_mapper->setMapping(calc[i], i);
+        connect(calc[i], SIGNAL(clicked(bool)), calc_mapper, SLOT(map()));
     }
     calclay->addWidget(calc[0], 3, 0);
     calclay->addWidget(calc[1], 2, 0);
@@ -120,11 +125,17 @@ MainWindow::MainWindow()
     calclay->addWidget(calc[8], 0, 1);
     calclay->addWidget(calc[9], 0, 2);
 
-    calc[10] = new QPushButton("X");
+    calc[10] = new QPushButton("×");
     calc[11] = new QPushButton("C");
     calc[12] = new QPushButton("00");
     calc[13] = new QPushButton(".");
+    calc[14] = new QPushButton("⇧");
+    calc[15] = new QPushButton("⇩");
 
+    connect(calc[11], SIGNAL(clicked(bool)), this, SLOT(touchC()));
+
+    calclay->addWidget(calc[14],2, 3);
+    calclay->addWidget(calc[15], 3, 3);
     calclay->addWidget(calc[10], 0, 3);
     calclay->addWidget(calc[11], 1, 3);
     calclay->addWidget(calc[12], 3, 1);
@@ -172,17 +183,23 @@ MainWindow::MainWindow()
 
     QMap<QString, QVariant> cat = psettings->value("colours").toMap();
     QSqlQuery query("SELECT name, price, colour FROM products ORDER BY colour", *manager->getDB());
+    product_list = new QMap<QString, Product*>;
+    while (query.next())
+    {
+        Product *produit = new Product(query.value("name").toString(), query.value("price").toDouble(), query.value("colour").toString());
+        product_list->insert(query.value("name").toString(), produit);
+    }
     QGridLayout *products_lay = new QGridLayout;
     int number_columns = 0;
     int cell = 0;
     for (QMap<QString, QVariant>::iterator it = cat.begin() ; it != cat.end() ; it++)
     {
-        while (query.next())
+        for (QMap<QString, Product*>::iterator its = product_list->begin() ; its != product_list->end() ; its++)
         {
-            if (query.value("colour").toString() == it.value().toString())
+            if (its.value()->getCategorie() == it.value().toString())
             {
-                QPushButton *button = new QPushButton(query.value("name").toString() + "\n" + query.value("price").toString() + " €");
-                button->setStyleSheet("background-color: " + query.value("colour").toString());
+                QPushButton *button = new QPushButton(its.key() + "\n" + QString::number(its.value()->getPrice(), 'g', 2) + " €");
+                button->setStyleSheet("background-color: " + its.value()->getCategorie());
                 products_lay->addWidget(button, cell, number_columns);
                 cell++;
                 if(cell>5) {
@@ -191,7 +208,6 @@ MainWindow::MainWindow()
                 }
             }
         }
-        query.first();
         number_columns++;
         cell = 0;
     }
@@ -231,6 +247,9 @@ MainWindow::MainWindow()
     connect(settingsModif, SIGNAL(triggered(bool)), this, SLOT(showSettings()));
     connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
     connect(sign, SIGNAL(clicked(bool)), this, SLOT(sign_slot()));
+    connect(cancel, SIGNAL(clicked(bool)), this, SLOT(cancelSell()));
+    connect(totalmd, SIGNAL(clicked(bool)), this, SLOT(showTotal()));
+    connect(calc_mapper, SIGNAL(mapped(int)), this, SLOT(multiply(int)));
 }
 
 void MainWindow::showProductsEdit()
@@ -315,6 +334,7 @@ void MainWindow::sign_slot()
         seller = sellerr;
         actualiseVendeur();
         sign->setText(tr("Sign Out"));
+        current = new Vente(psettings->value("sold").toInt() + 1);
     }
     else
     {
@@ -331,6 +351,8 @@ void MainWindow::sign_slot()
         seller = 0;
         actualiseVendeur();
         sign->setText(tr("Sign In"));
+        delete current;
+        current = 0;
     }
 }
 
@@ -344,5 +366,43 @@ void MainWindow::actualiseVendeur()
         actualiseTable();
         sellerd->setText("VERROUILLÉ");
         soldd->setText("");
+    }
+}
+void MainWindow::cancelSell()
+{
+    if (current != 0) {
+    int number = current->getNumber();
+    delete current;
+    current = new Vente(number);
+    actualiseTable();
+    multiplyby = 0;
+    }
+}
+
+void MainWindow::showTotal()
+{
+    qDebug() << "cool";
+    if (current != 0) {
+    totald->setText("TOTAL : " + QString::number(current->getTotal()) + " €");
+    qDebug() << "work;";
+    multiplyby = 0;
+    }
+}
+
+void MainWindow::multiply(int gnumber)
+{
+    if (current != 0) {
+    multiplyby = (multiplyby==0) ? gnumber : QString(QString::number(multiplyby) + QString::number(gnumber)).toInt();
+    totald->setText(QString::number(multiplyby) + " x");
+
+    }
+}
+
+void MainWindow::touchC()
+{
+    if (multiplyby != 0)
+    {
+        multiplyby = 0;
+        totald->setText("0 x");
     }
 }

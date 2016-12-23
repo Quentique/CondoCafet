@@ -9,6 +9,8 @@
 #include <QDoubleSpinBox>
 #include <QPushButton>
 #include <QSignalMapper>
+#include <QMap>
+#include <QString>
 
 #include "dbmanager.h"
 #include "vente.h"
@@ -27,8 +29,12 @@ public slots:
     void actualiseTable();
     void sign_slot();
     void actualiseVendeur();
+    void cancelSell();
+    void showTotal();
+    void multiply(int gnumber);
 
 private:
+    int multiplyby;
     QWidget *centralWidget;
     DbManager *manager;
     QTableWidget *sold_details;
@@ -40,7 +46,8 @@ private:
     QPushButton *sign, *rush, *pay, *cancel, *retour, *totalmd;
     QPushButton *calc[16], *coins[12];
     QDoubleSpinBox *countd;
-    QSignalMapper *products_mapper;
+    QSignalMapper *products_mapper, *calc_mapper;
+    QMap<QString, Product*> *product_list;
 };
 
 #endif // MAINWINDOW_H

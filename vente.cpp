@@ -22,3 +22,8 @@ double Vente::getTotal()
 {
     return total;
 }
+
+int Vente::getNumber()
+{
+    return number;
+}
