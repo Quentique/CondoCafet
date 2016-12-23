@@ -34,6 +34,8 @@ public slots:
     void multiply(int gnumber);
     void touchC();
     void addProduct(QString gname);
+    void up();
+    void down();
 
 private:
     int multiplyby;

@@ -99,7 +99,7 @@ MainWindow::MainWindow()
     sold_details->setSelectionMode(QAbstractItemView::NoSelection);
     sold_details->setEditTriggers(QAbstractItemView::NoEditTriggers);
     sold_details->setSelectionBehavior(QAbstractItemView::SelectRows);
-   // sold_details->setShowGrid(false);
+    sold_details->setShowGrid(false);
     sold_details->verticalHeader()->setVisible(false);
     sold_details->setFocusPolicy(Qt::NoFocus);
     sold_details->horizontalHeader()->setStretchLastSection(true);
@@ -135,6 +135,8 @@ MainWindow::MainWindow()
     calc[15] = new QPushButton("⇩");
 
     connect(calc[11], SIGNAL(clicked(bool)), this, SLOT(touchC()));
+    connect(calc[14], SIGNAL(clicked(bool)), this, SLOT(up()));
+    connect(calc[15], SIGNAL(clicked(bool)), this, SLOT(down()));
 
     calclay->addWidget(calc[14],2, 3);
     calclay->addWidget(calc[15], 3, 3);
@@ -401,7 +403,7 @@ void MainWindow::multiply(int gnumber)
 {
     if (current != 0) {
     multiplyby = (multiplyby==0) ? gnumber : QString(QString::number(multiplyby) + QString::number(gnumber)).toInt();
-    totald->setText(QString::number(multiplyby) + " x");
+    totald->setText(QString::number(multiplyby) + " ×");
     }
 }
 
@@ -410,7 +412,7 @@ void MainWindow::touchC()
     if (multiplyby != 0)
     {
         multiplyby = 0;
-        totald->setText("0 x");
+        totald->setText("0 ×");
     }
 }
 
@@ -420,5 +422,30 @@ void MainWindow::addProduct(QString gname)
     {
         current->addArticle(product_list->find(gname).value(), (multiplyby!=0) ? multiplyby : 1);
         actualiseTable();
+        showTotal();
+    }
+}
+
+void MainWindow::up()
+{
+    if (!sold_details->selectedRanges().isEmpty())
+    {
+        if (sold_details->selectedRanges().first().bottomRow() != 0) {
+        int r = sold_details->selectedRanges().first().bottomRow();
+        sold_details->clearSelection();
+        sold_details->setRangeSelected(QTableWidgetSelectionRange(r-1, 0, r-1, sold_details->columnCount()-1), true);
+        }
+    }
+}
+
+void MainWindow::down()
+{
+    if (!sold_details->selectedRanges().isEmpty())
+    {
+        if (sold_details->selectedRanges().first().bottomRow() != sold_details->rowCount()-1) {
+        int r = sold_details->selectedRanges().first().bottomRow();
+        sold_details->clearSelection();
+        sold_details->setRangeSelected(QTableWidgetSelectionRange(r+1, 0, r+1, sold_details->columnCount()-1), true);
+        }
     }
 }
