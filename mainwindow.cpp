@@ -416,8 +416,13 @@ void MainWindow::showTotal()
     if (current != 0) {
     QString start = (payMode) ? tr("RESTANT : ") : tr("TOTAL : ");
     if (payment > current->getTotal())
-        start = tr("À RENDRE :");
+        start = tr("À RENDRE : "
+                   "");
     totald->setText(start + QString::number((payMode) ? current->getTotal() - payment : current->getTotal(), 'f', 2) + " €");
+    if (start == "À RENDRE : ")
+    {
+        totald->setText(start + QString::number(qAbs(current->getTotal()-payment), 'f', 2) + " €");
+    }
     multiplyby = 0;
     }
 }
@@ -523,7 +528,9 @@ void MainWindow::paySlot()
                 showTotal();
                 qDebug() << "à rendre";
             }
-        } else {
+        } else if (payMode) {
+            endSell();
+        }else {
         payMode = true;
                 showTotal();
         }
