@@ -14,14 +14,16 @@
 #include <QHeaderView>
 #include <QColor>
 #include <QPixmap>
+#include <QSqlQuery>
 #include "color_wheel.hpp"
 
-Settings::Settings() : QDialog()
+Settings::Settings(QSqlDatabase *db) : QDialog()
 {
     settings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
     ok = new QPushButton(tr("Valider"));
     ok->setDefault(true);
     cancel = new QPushButton(tr("Annuler"));
+    sql = db;
 
     QHBoxLayout *boutons = new QHBoxLayout;
     boutons->addWidget(ok, 0, Qt::AlignRight);
@@ -76,6 +78,7 @@ void Settings::fullInformation()
     {
         QStandardItem *item = new QStandardItem(it.key());
         QStandardItem *item2 = new QStandardItem(it.value().toString());
+        item2->setData(it.value().toString());
         QPixmap map(100, 100);
         map.fill(QColor(it.value().toString()));
         item2->setIcon(QIcon(map));
@@ -109,6 +112,7 @@ void Settings::createRow()
     QStandardItemModel *model =  static_cast<QStandardItemModel*>(coloursT->model());
     QStandardItem *itemPif = new QStandardItem("None");
     QStandardItem *itemPof = new QStandardItem("#FFFFFF");
+
 
     QPixmap map(100, 100);
     map.fill(QColor("#FFFFFF"));
@@ -162,6 +166,11 @@ void Settings::writeInformation()
     {
         map.insert(model->item(i, 0)->text(), model->item(i, 1)->text());
         qDebug() << model->item(i, 0)->text();
+        QSqlQuery query(*sql);
+        query.prepare("UPDATE products SET colour = ? WHERE colour = ?");
+        query.bindValue(0, model->item(i, 1)->text());
+        query.bindValue(1, model->item(i, 1)->data().toString());
+        query.exec();
     }
 
     settings->setValue("colours", map);

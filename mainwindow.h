@@ -21,6 +21,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     MainWindow();
+    void endSell();
 
 public slots:
     void showProductsEdit();
@@ -36,9 +37,14 @@ public slots:
     void addProduct(QString gname);
     void up();
     void down();
+    void touchX();
+    void paySlot();
+    void moneyTouch(QString data);
 
 private:
-    int multiplyby;
+    double multiplyby;
+    bool payMode;
+    double payment;
     QWidget *centralWidget;
     DbManager *manager;
     QTableWidget *sold_details;
@@ -50,7 +56,7 @@ private:
     QPushButton *sign, *rush, *pay, *cancel, *retour, *totalmd;
     QPushButton *calc[16], *coins[12];
     QDoubleSpinBox *countd;
-    QSignalMapper *products_mapper, *calc_mapper;
+    QSignalMapper *products_mapper, *calc_mapper, *money_mapper;
     QHash<QString, Product*> *product_list;
 };
 

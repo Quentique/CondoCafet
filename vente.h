@@ -4,6 +4,7 @@
 #include <QMap>
 #include "article.h"
 #include <QStandardItemModel>
+#include <QSqlDatabase>
 
 class Vente : public QVector<QString>
 {
@@ -15,6 +16,7 @@ public:
     int getNumber();
     Article getArticle(int pos);
     void setQuantity(Product *g_product, int g_quantity);
+    void end(QSqlDatabase *sql);
 
 private:
     double total;

@@ -11,12 +11,13 @@
 #include <QLabel>
 #include <QPoint>
 #include <QAction>
+#include <QSqlDatabase>
 
 class Settings : public QDialog
 {
     Q_OBJECT
 public:
-    Settings();
+    Settings(QSqlDatabase *db);
     void fullInformation();
 
 public slots:
@@ -28,6 +29,7 @@ public slots:
     void writeInformation();
 
 private:
+    QSqlDatabase *sql;
     QSettings *settings;
     QGroupBox *colours;
     QPushButton *ok, *cancel;

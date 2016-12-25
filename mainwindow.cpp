@@ -30,6 +30,8 @@ MainWindow::MainWindow()
     seller = 0;
     current = 0;
     multiplyby = 0;
+    payment = 0.00f;
+    payMode = false;
    /* current->addArticle(new Product("Chocolat", 10.20, "Beu"), 5);
     current->addArticle(new Product("Bonbons", 152, "rouge"), 1);*/
 
@@ -113,6 +115,7 @@ MainWindow::MainWindow()
     for (int i = 0 ; i < 10 ; i++)
     {
         calc[i] = new QPushButton(QString::number(i));
+        calc[i]->setShortcut(QKeySequence(QString::number(i)));
         calc_mapper->setMapping(calc[i], i);
         connect(calc[i], SIGNAL(clicked(bool)), calc_mapper, SLOT(map()));
     }
@@ -128,12 +131,23 @@ MainWindow::MainWindow()
     calclay->addWidget(calc[9], 0, 2);
 
     calc[10] = new QPushButton("×");
+    calc[10]->setShortcut(QKeySequence("*"));
     calc[11] = new QPushButton("C");
+    calc[11]->setShortcut(QKeySequence(Qt::Key_Backspace));
     calc[12] = new QPushButton("00");
     calc[13] = new QPushButton(".");
+    calc[13]->setShortcut(Qt::Key_Period);
     calc[14] = new QPushButton("⇧");
+    calc[14]->setShortcut(QKeySequence(Qt::Key_Up));
     calc[15] = new QPushButton("⇩");
+    calc[15]->setShortcut(QKeySequence(Qt::Key_Down));
 
+    for (int i = 0 ; i < 16 ; i++)
+    {
+        calc[i]->setFont(QFont("Calibri", 15));
+    }
+
+    connect(calc[10], SIGNAL(clicked(bool)), this, SLOT(touchX()));
     connect(calc[11], SIGNAL(clicked(bool)), this, SLOT(touchC()));
     connect(calc[14], SIGNAL(clicked(bool)), this, SLOT(up()));
     connect(calc[15], SIGNAL(clicked(bool)), this, SLOT(down()));
@@ -150,17 +164,19 @@ MainWindow::MainWindow()
 
     pay = new QPushButton(tr("PAYER"));
     cancel = new QPushButton(tr("ANNULER"));
-    retour = new QPushButton(tr("Retour"));
+   // retour = new QPushButton(tr("Retour"));
     totalmd = new QPushButton(tr("TOTAL"));
 
     QVBoxLayout *cash = new QVBoxLayout;
     cash->addWidget(pay, 0);
     cash->addWidget(cancel, 0);
-    cash->addWidget(retour, 0);
+   // cash->addWidget(retour, 0);
     cash->addWidget(totalmd, 2, Qt::AlignTop);
 
     QStringList money;
     money << "0.01" << "0.02" << "0.05" << "0.10" << "0.20" << "0.50" << "1" << "2" << "5" << "10" << "20" << "50";
+
+    money_mapper = new QSignalMapper;
 
     for (int i = 0 ; i < 12 ; i++)
     {
@@ -168,7 +184,8 @@ MainWindow::MainWindow()
         coins[i]->setIcon(QIcon(QPixmap(":/coins/" + money.at(i) + ".png")));
         coins[i]->setToolTip(money.at(i));
         coins[i]->setIconSize(QSize(70, 70));
-
+        money_mapper->setMapping(coins[i], money.at(i));
+        connect(coins[i], SIGNAL(clicked(bool)), money_mapper, SLOT(map()));
     }
 
     QGridLayout *moneylay = new QGridLayout;
@@ -260,6 +277,8 @@ MainWindow::MainWindow()
     connect(totalmd, SIGNAL(clicked(bool)), this, SLOT(showTotal()));
     connect(calc_mapper, SIGNAL(mapped(int)), this, SLOT(multiply(int)));
     connect(products_mapper, SIGNAL(mapped(QString)), this, SLOT(addProduct(QString)));
+    connect(money_mapper, SIGNAL(mapped(QString)), this, SLOT(moneyTouch(QString)));
+    connect(pay, SIGNAL(clicked(bool)), this, SLOT(paySlot()));
 }
 
 void MainWindow::showProductsEdit()
@@ -276,7 +295,7 @@ void MainWindow::showSellersEdit()
 
 void MainWindow::showSettings()
 {
-    Settings *settings = new Settings;
+    Settings *settings = new Settings(manager->getDB());
     settings->exec();
 }
 
@@ -290,7 +309,7 @@ void MainWindow::actualiseTable()
         QTableWidgetItem *item = new QTableWidgetItem(tr("VERROUILLE"));
         item->setTextAlignment(Qt::AlignCenter);
         item->setFont(QFont("Arial", 20));
-        sold_details->setItem(0, 0, item);
+        sold_details->setItem(sold_details->rowCount()-1, 0, item);
         /*sold_details->setColumnWidth(0, sold_details->width());
         sold_details->setRowHeight(0, sold_details->height());*/
 
@@ -363,6 +382,7 @@ void MainWindow::sign_slot()
         sign->setText(tr("Sign In"));
         delete current;
         current = 0;
+        countd->setValue(0.00f);
     }
 }
 
@@ -371,10 +391,10 @@ void MainWindow::actualiseVendeur()
     if (seller != 0) {
     actualiseTable();
     sellerd->setText(seller->getName());
-    soldd->setText("Vente N°" + QString::number(psettings->value("sold").toInt() + 1));
+    soldd->setText(tr("Vente N°") + QString::number(psettings->value("sold").toInt() + 1));
     } else {
         actualiseTable();
-        sellerd->setText("VERROUILLÉ");
+        sellerd->setText(tr("VERROUILLÉ"));
         soldd->setText("");
     }
 }
@@ -386,15 +406,18 @@ void MainWindow::cancelSell()
     current = new Vente(number);
     actualiseTable();
     multiplyby = 0;
+    payment = 0;
+    payMode = false;
     }
 }
 
 void MainWindow::showTotal()
 {
-    qDebug() << "cool";
     if (current != 0) {
-    totald->setText("TOTAL : " + QString::number(current->getTotal(), 'f', 2) + " €");
-    qDebug() << "work;";
+    QString start = (payMode) ? tr("RESTANT : ") : tr("TOTAL : ");
+    if (payment > current->getTotal())
+        start = tr("À RENDRE :");
+    totald->setText(start + QString::number((payMode) ? current->getTotal() - payment : current->getTotal(), 'f', 2) + " €");
     multiplyby = 0;
     }
 }
@@ -403,7 +426,8 @@ void MainWindow::multiply(int gnumber)
 {
     if (current != 0) {
     multiplyby = (multiplyby==0) ? gnumber : QString(QString::number(multiplyby) + QString::number(gnumber)).toInt();
-    totald->setText(QString::number(multiplyby) + " ×");
+    QString what = (!payMode) ? " ×" : "";
+    totald->setText(QString::number(multiplyby) + what);
     }
 }
 
@@ -416,8 +440,30 @@ void MainWindow::touchC()
     }
     else if (!sold_details->selectedRanges().isEmpty())
     {
+
         current->deleteArticle(product_list->find(sold_details->item(sold_details->selectedRanges().first().bottomRow(), 1)->text()).value());
         actualiseTable();
+    }
+}
+
+void MainWindow::touchX()
+{
+    if (!payMode)
+    {
+        if (multiplyby != 0 && !sold_details->selectedRanges().isEmpty())
+        {
+          current->setQuantity(product_list->find(sold_details->item(sold_details->selectedRanges().first().bottomRow(), 1)->text()).value(), multiplyby);
+           showTotal();
+           actualiseTable();
+           multiplyby = 0;
+        }
+    }
+    else
+    {
+        if (multiplyby != 0)
+        {
+            totald->setText(totald->text() + " ×");
+        }
     }
 }
 
@@ -453,4 +499,69 @@ void MainWindow::down()
         sold_details->setRangeSelected(QTableWidgetSelectionRange(r+1, 0, r+1, sold_details->columnCount()-1), true);
         }
     }
+}
+void MainWindow::paySlot()
+{
+
+    if (current != 0 && !current->isEmpty())
+    {
+        if(payment > current->getTotal())
+        {
+            endSell();
+            qDebug() << "SECOND MAL";
+        }
+        else if (multiplyby != 0)
+        {
+            payment += multiplyby;
+            multiplyby = 0;
+            if (payment == current->getTotal())
+            {
+                endSell();
+                qDebug() << "FINISH";
+            } else if (payment > current->getTotal())
+            {
+                showTotal();
+                qDebug() << "à rendre";
+            }
+        } else {
+        payMode = true;
+                showTotal();
+        }
+
+    }
+}
+
+void MainWindow::moneyTouch(QString data)
+{
+    if (payMode)
+    {
+        int mals = (multiplyby!=0) ? multiplyby : 1;
+        payment += mals * data.toDouble();
+        showTotal();
+        qDebug() << payment;
+        qDebug() << current->getTotal();
+        if (payment == current->getTotal())
+        {
+            qDebug() << "DONE";
+            endSell();
+        }
+    }
+}
+
+void MainWindow::endSell()
+{
+    qDebug() << "END SELL";
+    current->end(manager->getDB());
+    seller->addSold(current->getTotal());
+    psettings->setValue("sold", current->getNumber());
+    delete current;
+    current = new Vente(psettings->value("sold").toInt()+1);
+    soldd->setText("Vente N° " + QString::number(current->getNumber()));
+    countd->setValue(seller->getAmount());
+    totald->setText(tr("VENTE TERMINÉE"));
+    payment = 0;
+    multiplyby = 0;
+    payMode = false;
+    actualiseTable();
+    qDebug() << "FINISHED";
 }

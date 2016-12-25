@@ -1,4 +1,5 @@
 #include "vente.h"
+#include <QSqlQuery>
 
 Vente::Vente(int g_number) : number(g_number)
 {
@@ -70,4 +71,22 @@ int Vente::getNumber()
 Article Vente::getArticle(int pos)
 {
     return articles->at(pos);
+}
+void Vente::end(QSqlDatabase *sql)
+{
+    for (int i = 0 ; i < count() ; i++)
+    {
+        Article article = articles->at(i);
+        QSqlQuery query(*sql);
+        query.prepare("SELECT sold FROM products WHERE name = ?");
+        query.bindValue(0, at(i));
+        query.exec();
+        query.next();
+        int amount = query.value("sold").toInt();
+        amount += article.getQuantity();
+        query.prepare("UPDATE products SET sold = ? WHERE name = ?");
+        query.bindValue(0, amount);
+        query.bindValue(1, at(i));
+        query.exec();
+    }
 }
