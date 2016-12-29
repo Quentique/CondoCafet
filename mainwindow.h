@@ -22,6 +22,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
     void endSell();
+    void writeActivity();
 
 public slots:
     void showProductsEdit();
@@ -54,7 +55,7 @@ private:
     QLineEdit *dated, *sellerd, *totald;
     QLabel *soldd;
     QPushButton *sign, *rush, *pay, *cancel, *retour, *totalmd;
-    QPushButton *calc[16], *coins[12];
+    QPushButton *calc[14], *coins[12];
     QDoubleSpinBox *countd;
     QSignalMapper *products_mapper, *calc_mapper, *money_mapper;
     QHash<QString, Product*> *product_list;

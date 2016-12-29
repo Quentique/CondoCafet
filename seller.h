@@ -12,6 +12,8 @@ public:
     QString getName();
     int getSoldCount();
     double getAmount();
+    QString getClass();
+    QDateTime getEnterTime();
 
 private:
     QString name, classe;

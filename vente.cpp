@@ -1,5 +1,10 @@
 #include "vente.h"
 #include <QSqlQuery>
+#include <QFile>
+#include <QStandardPaths>
+#include <QTextStream>
+#include <QDateTime>
+#include <QObject>
 
 Vente::Vente(int g_number) : number(g_number)
 {
@@ -74,6 +79,16 @@ Article Vente::getArticle(int pos)
 }
 void Vente::end(QSqlDatabase *sql)
 {
+    QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
+    location += "/log/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
+
+            QFile file(location);
+
+            file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
+            QTextStream stream(&file);
+            stream.setCodec("UTF-8");
+             stream << endl << QString::fromUtf8("N°") << QString::number(getNumber()) << QString::fromUtf8(" à ") << QDateTime::currentDateTime().toString("HH:mm") << ", " << QString::number(getTotal(), 'f', 2) + QString::fromUtf8(" € : ");
+
     for (int i = 0 ; i < count() ; i++)
     {
         Article article = articles->at(i);
@@ -88,5 +103,9 @@ void Vente::end(QSqlDatabase *sql)
         query.bindValue(0, amount);
         query.bindValue(1, at(i));
         query.exec();
+        QString fin = (i+1 == count()) ? "" : ", ";
+        stream << QString::number(article.getQuantity()) << QString::fromUtf8("× ") << QString::fromUtf8(article.getProduct()->getName().toUtf8()) << fin;
+
     }
+    file.close();
 }

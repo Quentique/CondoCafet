@@ -15,5 +15,11 @@ QString Seller::getName()
     return name;
 }
 
+QDateTime Seller::getEnterTime()
+{
+    return enter_date;
+}
+
 int Seller::getSoldCount() { return nb_ventes; }
 double Seller::getAmount() { return sold; }
+QString Seller::getClass() { return classe; }

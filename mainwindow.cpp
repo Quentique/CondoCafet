@@ -14,16 +14,13 @@
 #include <QDebug>
 #include <QKeySequence>
 #include <QSqlQuery>
+#include <QMessageBox>
+#include <QFileInfo>
+#include <QDir>
+#include <QStandardPaths>
+#include <QTextStream>
 #include "sellerselector.h"
-static QSize myGetQTableWidgetSize(QTableWidget *t) {
-   int w = t->verticalHeader()->width() + 4; // +4 seems to be needed
-   for (int i = 0; i < t->columnCount(); i++)
-      w += t->columnWidth(i); // seems to include gridline (on my machine)
-   int h = t->horizontalHeader()->height() + 4;
-   for (int i = 0; i < t->rowCount(); i++)
-      h += t->rowHeight(i);
-   return QSize(w, h);
-}
+
 MainWindow::MainWindow()
 {
     centralWidget = new QWidget();
@@ -134,30 +131,27 @@ MainWindow::MainWindow()
     calc[10]->setShortcut(QKeySequence("*"));
     calc[11] = new QPushButton("C");
     calc[11]->setShortcut(QKeySequence(Qt::Key_Backspace));
-    calc[12] = new QPushButton("00");
-    calc[13] = new QPushButton(".");
-    calc[13]->setShortcut(Qt::Key_Period);
-    calc[14] = new QPushButton("⇧");
-    calc[14]->setShortcut(QKeySequence(Qt::Key_Up));
-    calc[15] = new QPushButton("⇩");
-    calc[15]->setShortcut(QKeySequence(Qt::Key_Down));
+    calc[12] = new QPushButton("⇧");
+    calc[12]->setShortcut(QKeySequence(Qt::Key_Up));
+    calc[13] = new QPushButton("⇩");
+    calc[13]->setShortcut(QKeySequence(Qt::Key_Down));
 
-    for (int i = 0 ; i < 16 ; i++)
+    for (int i = 0 ; i < 14 ; i++)
     {
         calc[i]->setFont(QFont("Calibri", 15));
     }
 
     connect(calc[10], SIGNAL(clicked(bool)), this, SLOT(touchX()));
     connect(calc[11], SIGNAL(clicked(bool)), this, SLOT(touchC()));
-    connect(calc[14], SIGNAL(clicked(bool)), this, SLOT(up()));
-    connect(calc[15], SIGNAL(clicked(bool)), this, SLOT(down()));
+    connect(calc[12], SIGNAL(clicked(bool)), this, SLOT(up()));
+    connect(calc[13], SIGNAL(clicked(bool)), this, SLOT(down()));
 
-    calclay->addWidget(calc[14],2, 3);
-    calclay->addWidget(calc[15], 3, 3);
+    calclay->addWidget(calc[12],2, 3);
+    calclay->addWidget(calc[13], 3, 3);
     calclay->addWidget(calc[10], 0, 3);
     calclay->addWidget(calc[11], 1, 3);
-    calclay->addWidget(calc[12], 3, 1);
-    calclay->addWidget(calc[13], 3, 2);
+   // calclay->addWidget(calc[12], 3, 1);
+   // calclay->addWidget(calc[13], 3, 2);
 
     calclay->setSizeConstraint(QLayout::SetFixedSize);
 
@@ -364,9 +358,53 @@ void MainWindow::sign_slot()
         actualiseVendeur();
         sign->setText(tr("Sign Out"));
         current = new Vente(psettings->value("sold").toInt() + 1);
+        totald->setText("0.00 €");
+
+        QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
+        location += "/log";
+        QFileInfo info(location);
+        if (!info.exists())
+        {
+            QDir cur(QDir::current());
+            cur.mkpath(location);
+        }
+
+        location += "/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
+
+        QFile file(location);
+        QFileInfo info2(location);
+        if (!info2.exists())
+        {
+            file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
+            QTextStream stream(&file);
+            stream.setCodec("UTF-8");
+            stream.setGenerateByteOrderMark(true);
+            stream << "************** CondoCafet **************" << endl;
+            stream << QDate::currentDate().toString("dddd dd MMMM yyyy") << endl;
+            stream << "****************************************" << endl;
+            file.close();
+        }
+
+        if (!file.open(QFile::WriteOnly | QFile::Append))
+        {
+            QMessageBox::critical(this, tr("Erreur d'E/S"), tr("CondoCafet n'a pas pu écrire le log de cette session de vente."));
+        }
+        else
+        {
+            QTextStream stream(&file);
+            stream.setCodec("UTF-8");
+            stream << QString::fromUtf8("Ouverture à ") << seller->getEnterTime().toString("HH:mm") << " par " << seller->getName() << ", " << seller->getClass();
+            file.close();
+        }
     }
     else
     {
+        int reponse = 0x00004000;
+        if (!current->isEmpty())
+        {
+            reponse = QMessageBox::warning(this, tr("ATTENTION"), tr("Vous essayez de vous déconnecter alors que la vente en cours n'est pas terminée\nÊtes-vous sûr de vouloir vous déconnecter ?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        }
+        if (reponse == QMessageBox::Yes) {
         QSqlQuery query("SELECT amount FROM sellers WHERE name = '" + seller->getName() + "'", *manager->getDB());
         query.next();
         double amount = query.value("amount").toDouble();
@@ -376,13 +414,30 @@ void MainWindow::sign_slot()
         query.bindValue(0, amount);
         query.bindValue(1, seller->getName());
         query.exec();
+        QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
+        location += "/log/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
+        QFile file(location);
+        if (!file.open(QFile::WriteOnly | QFile::Append | QFile::Text))
+        {
+            QMessageBox::critical(this, tr("Erreur d'E/S"), tr("CondoCafet n'a pas pu écrire le log de cette session de vente."));
+        }
+        else
+        {
+            QTextStream stream(&file);
+            stream.setCodec("UTF-8");
+            stream << endl << QString::fromUtf8("Fermeture à ") << QDateTime::currentDateTime().toString("HH:mm") << ", " << QString::number(seller->getSoldCount()) << " ventes pour un total de " << QString::number(seller->getAmount(), 'f', 2) << QString::fromUtf8(" €") << endl;
+            stream << "****************************************" << endl;
+            file.close();
+        }
         delete seller;
         seller = 0;
         actualiseVendeur();
         sign->setText(tr("Sign In"));
+        totald->setText(tr("VERROUILLÉ"));
         delete current;
         current = 0;
         countd->setValue(0.00f);
+        }
     }
 }
 
@@ -472,6 +527,8 @@ void MainWindow::touchX()
     }
 }
 
+
+
 void MainWindow::addProduct(QString gname)
 {
     if (current != 0)
@@ -530,6 +587,7 @@ void MainWindow::paySlot()
             }
         } else if (payMode) {
             endSell();
+
         }else {
         payMode = true;
                 showTotal();
@@ -571,4 +629,9 @@ void MainWindow::endSell()
     payMode = false;
     actualiseTable();
     qDebug() << "FINISHED";
+}
+
+void MainWindow::writeActivity()
+{
+
 }
