@@ -22,7 +22,9 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
     void endSell();
-    void writeActivity();
+
+protected:
+    void closeEvent(QCloseEvent *event);
 
 public slots:
     void showProductsEdit();

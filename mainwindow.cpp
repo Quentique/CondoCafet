@@ -19,6 +19,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QTextStream>
+#include <QCloseEvent>
 #include "sellerselector.h"
 
 MainWindow::MainWindow()
@@ -698,7 +699,34 @@ void MainWindow::endSell()
     qDebug() << "FINISHED";
 }
 
-void MainWindow::writeActivity()
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-
+    if (seller != 0)
+    {
+        if (current->isEmpty() && !rushMode)
+        {
+            sign_slot();
+            event->accept();
+        } else if (current->isEmpty() && rushMode)
+        {
+            endSell();
+            rushTouch();
+            sign_slot();
+            event->accept();
+        } else
+        {
+            int reponse = QMessageBox::warning(this, tr("Instance non terminée"), tr("La vente en cours n'est pas terminée.\nVoulez-vous poursuivre la fermeture ?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (reponse == QMessageBox::No)
+            {
+                event->ignore();
+            }
+            else
+            {
+                if (rushMode)
+                    rushTouch();
+                sign_slot();
+                event->accept();
+            }
+        }
+    }
 }
