@@ -40,11 +40,12 @@ public slots:
     void down();
     void touchX();
     void paySlot();
+    void rushTouch();
     void moneyTouch(QString data);
 
 private:
     double multiplyby;
-    bool payMode;
+    bool payMode, rushMode;
     double payment;
     QWidget *centralWidget;
     DbManager *manager;

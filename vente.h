@@ -16,7 +16,7 @@ public:
     int getNumber();
     Article getArticle(int pos);
     void setQuantity(Product *g_product, int g_quantity);
-    void end(QSqlDatabase *sql);
+    void end(QSqlDatabase *sql, bool rush);
 
 private:
     double total;

@@ -58,8 +58,13 @@ void Vente::setQuantity(Product *g_product, int g_quantity)
         Article article = articles->at(indexOf(g_product->getName()));
         total -= article.getTotal();
         article.setQuantity(g_quantity);
+        if (article.getQuantity() <= 0)
+        {
+            deleteArticle(article.getProduct());
+        } else {
         total += article.getTotal();
         articles->replace(indexOf(g_product->getName()), article);
+        }
     }
 }
 
@@ -77,7 +82,7 @@ Article Vente::getArticle(int pos)
 {
     return articles->at(pos);
 }
-void Vente::end(QSqlDatabase *sql)
+void Vente::end(QSqlDatabase *sql, bool rush)
 {
     QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
     location += "/log/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
@@ -87,6 +92,7 @@ void Vente::end(QSqlDatabase *sql)
             file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
             QTextStream stream(&file);
             stream.setCodec("UTF-8");
+            if (!rush)
              stream << endl << QString::fromUtf8("N°") << QString::number(getNumber()) << QString::fromUtf8(" à ") << QDateTime::currentDateTime().toString("HH:mm") << ", " << QString::number(getTotal(), 'f', 2) + QString::fromUtf8(" € : ");
 
     for (int i = 0 ; i < count() ; i++)
@@ -104,6 +110,7 @@ void Vente::end(QSqlDatabase *sql)
         query.bindValue(1, at(i));
         query.exec();
         QString fin = (i+1 == count()) ? "" : ", ";
+        fin = (rush) ? "\n" : fin;
         stream << QString::number(article.getQuantity()) << QString::fromUtf8("× ") << QString::fromUtf8(article.getProduct()->getName().toUtf8()) << fin;
 
     }
