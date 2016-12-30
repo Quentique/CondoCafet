@@ -50,35 +50,41 @@ MainWindow::MainWindow()
 
     productsManagement = new QAction(tr("Gestion des &produits"), this);
     sellersManagement = new QAction(tr("Gestion des &vendeurs"), this);
-    QAction *settingsModif = new QAction(tr("Paramètres"), this);
+    settingsModif = new QAction(tr("Paramètres"), this);
     QAction *unlock = new QAction(tr("Dévérouiller"), this);
     productsManagement->setEnabled(false);
     sellersManagement->setEnabled(false);
+    settingsModif->setEnabled(false);
     admin->addAction(productsManagement);
     admin->addAction(sellersManagement);
-    admin->addSeparator();
     admin->addAction(settingsModif);
+    admin->addSeparator();
     admin->addAction(unlock);
 
     dated = new QLineEdit;
     dated->setText(QDate::currentDate().toString("dddd d MMMM yyyy"));
     dated->setReadOnly(true);
+    dated->setMinimumWidth(dated->sizeHint().width()+50);
+    dated->setProperty("stylegen", true);
 
     sellerd = new QLineEdit;
     sellerd->setReadOnly(true);
     sellerd->setAlignment(Qt::AlignCenter);
+    sellerd->setProperty("stylegen", true);
     if (seller == 0)
     {
         sellerd->setText(tr("VERROUILLÉ"));
     } else { sellerd->setText(seller->getName()); }
 
     soldd = new QLabel;
+    soldd->setProperty("stylegen", true);
 
     countd = new QDoubleSpinBox;
     countd->setReadOnly(true);
     countd->setValue(0.00f);
     countd->setButtonSymbols(QDoubleSpinBox::NoButtons);
     countd->setSuffix(" €");
+    countd->setProperty("stylegen", true);
 
     QHBoxLayout *displayer = new QHBoxLayout;
     displayer->addWidget(dated, 0, Qt::AlignLeft);
@@ -88,6 +94,7 @@ MainWindow::MainWindow()
 
     sign = new QPushButton(tr("Sign In"));
     rush = new QPushButton(tr("RUSH Mode"));
+    rush->setStyleSheet("background-color: red; color: white; font-weight: bold;");
     totald = new QLineEdit;
     totald->setReadOnly(true);
     totald->setText("0.00 €");
@@ -147,7 +154,7 @@ MainWindow::MainWindow()
 
     for (int i = 0 ; i < 14 ; i++)
     {
-        calc[i]->setFont(QFont("Calibri", 15));
+        calc[i]->setStyleSheet("font-size: 20px; font-family: Calibri");
         calc[i]->setMaximumWidth(100);
     }
 
@@ -156,7 +163,7 @@ MainWindow::MainWindow()
     connect(calc[12], SIGNAL(clicked(bool)), this, SLOT(up()));
     connect(calc[13], SIGNAL(clicked(bool)), this, SLOT(down()));
 
-    calclay->addWidget(calc[12],2, 3);
+    calclay->addWidget(calc[12], 2, 3);
     calclay->addWidget(calc[13], 3, 3);
     calclay->addWidget(calc[10], 0, 3);
     calclay->addWidget(calc[11], 1, 3);
@@ -164,6 +171,7 @@ MainWindow::MainWindow()
    // calclay->addWidget(calc[13], 3, 2);
 
     pay = new QPushButton(tr("PAYER"));
+    pay->setStyleSheet("width: inherit;");
     cancel = new QPushButton(tr("ANNULER"));
    // retour = new QPushButton(tr("Retour"));
     totalmd = new QPushButton(tr("TOTAL"));
@@ -184,7 +192,7 @@ MainWindow::MainWindow()
         coins[i] = new QPushButton;
         coins[i]->setIcon(QIcon(QPixmap(":/coins/" + money.at(i) + ".png")));
         coins[i]->setToolTip(money.at(i));
-        coins[i]->setIconSize(QSize(70, 70));
+        coins[i]->setIconSize(QSize(60, 60));
         money_mapper->setMapping(coins[i], money.at(i));
         connect(coins[i], SIGNAL(clicked(bool)), money_mapper, SLOT(map()));
     }
@@ -222,7 +230,7 @@ MainWindow::MainWindow()
         {
             if (its.value()->getCategorie() == it.value().toString())
             {
-                QPushButton *button = new QPushButton(its.key() + "\n" + QString::number(its.value()->getPrice(), 'g', 2) + " €");
+                QPushButton *button = new QPushButton(its.key() + "\n" + QString::number(its.value()->getPrice(), 'f', 2) + " €");
                 button->setStyleSheet("background-color: " + its.value()->getCategorie());
                 products_mapper->setMapping(button, its.key());
                 connect(button, SIGNAL(clicked(bool)), products_mapper, SLOT(map()));
@@ -313,6 +321,7 @@ void MainWindow::unlock()
         {
             sellersManagement->setEnabled(true);
             productsManagement->setEnabled(true);
+            settingsModif->setEnabled(true);
             action->setText(tr("Verouiller"));
         }
         else
@@ -323,6 +332,7 @@ void MainWindow::unlock()
             {
                 sellersManagement->setEnabled(true);
                 productsManagement->setEnabled(true);
+                settingsModif->setEnabled(true);
                 action->setText(tr("Verouiller"));
             }
             else
@@ -334,6 +344,7 @@ void MainWindow::unlock()
     {
         sellersManagement->setEnabled(false);
         productsManagement->setEnabled(false);
+        settingsModif->setEnabled(false);
         action->setText(tr("Dévérouiller"));
     }
 }
@@ -693,6 +704,7 @@ void MainWindow::rushTouch()
             calc[11]->setText("-");
             totalmd->setEnabled(false);
             totald->setText("RUSH IN PROGRESS");
+            totald->setStyleSheet("background-color: red; color: white;");
             rush->setText(tr("TERMINER"));
             QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
             location += "/log/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
@@ -733,6 +745,7 @@ void MainWindow::rushTouch()
                     stream << QString::number(amount, 'f', 2) + QString::fromUtf8(" €") << tr(" réalisés pendant le Rush").toUtf8() << endl << "EXIT RUSH MODE AT " << QDateTime::currentDateTime().toString("HH:mm") << endl <<"          ********************          ";
             file.close();
             totald->setText(tr("RUSH TERMINÉ"));
+            totald->setStyleSheet("background-color: white; color: black;");
         }
     }
 }

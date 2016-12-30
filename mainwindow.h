@@ -63,7 +63,7 @@ private:
     QDoubleSpinBox *countd;
     QSignalMapper *products_mapper, *calc_mapper, *money_mapper;
     QHash<QString, Product*> *product_list;
-    QAction *productsManagement, *sellersManagement;
+    QAction *productsManagement, *sellersManagement, *settingsModif;
 };
 
 #endif // MAINWINDOW_H
