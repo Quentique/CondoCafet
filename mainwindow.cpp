@@ -20,6 +20,7 @@
 #include <QStandardPaths>
 #include <QTextStream>
 #include <QCloseEvent>
+#include <QInputDialog>
 #include "sellerselector.h"
 
 MainWindow::MainWindow()
@@ -355,9 +356,15 @@ void MainWindow::sign_slot()
         SellerSelector *selector = new SellerSelector(0, manager->getDB());
         selector->exec();
         int result = selector->getResult();
-        QSqlQuery query("SELECT name, class FROM sellers WHERE id = " + QString::number(result), *manager->getDB());
+        QSqlQuery query("SELECT name, class, birthday FROM sellers WHERE id = " + QString::number(result), *manager->getDB());
         query.next();
-        Seller *sellerr = new Seller(query.value("name").toString(), query.value("class").toString());
+        QString password = query.value("birthday").toString();
+        password.remove("-");
+        qDebug() << password;
+        QString entree = QInputDialog::getText(this, "Connexion", "Merci de saisir votre date de naissance sous le format JJMMAAA\n(sans tirets) afin de vous connecter",  QLineEdit::Password, "", nullptr, Qt::Dialog , Qt::ImhDigitsOnly);
+        if (entree == password)
+        {
+        Seller *sellerr = new Seller(query.value("name").toString(), query.value("class").toString(), query.value("birthday").toString());
         seller = sellerr;
         actualiseVendeur();
         sign->setText(tr("Sign Out"));
@@ -377,8 +384,6 @@ void MainWindow::sign_slot()
 
         QFile file(location);
         QFileInfo info2(location);
-        if (!info2.exists())
-        {
             file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
             QTextStream stream(&file);
             stream.setCodec("UTF-8");
@@ -387,7 +392,7 @@ void MainWindow::sign_slot()
             stream << QDate::currentDate().toString("dddd dd MMMM yyyy") << endl;
             stream << "****************************************" << endl;
             file.close();
-        }
+
 
         if (!file.open(QFile::WriteOnly | QFile::Append | QFile::Text))
         {
@@ -399,6 +404,10 @@ void MainWindow::sign_slot()
             stream.setCodec("UTF-8");
             stream << endl << QString::fromUtf8("Ouverture à ") << seller->getEnterTime().toString("HH:mm") << " par " << seller->getName() << ", " << seller->getClass();
             file.close();
+        }
+        } else
+        {
+            QMessageBox::critical(this, tr("Mot de passe erroné"), tr("La date de naissance entrée est erronée.\nConnexion refusée"));
         }
     }
     else
@@ -631,9 +640,11 @@ void MainWindow::rushTouch()
 {
     if (rush->text() == tr("RUSH Mode") && seller != 0)
     {
-        int reponse = QMessageBox::warning(this, tr("Zone protégée"), tr("Vous êtes sur le point d'entrer en <strong>mode Rush</strong>\nCe mode est destiné uniquement à la vente à la volée, lors des récréations par exemple, quand l'affluence est trop fort.\n\n<h3>Voulez-vous continuer ?</h3>"), QMessageBox::Yes | QMessageBox::Abort, QMessageBox::Yes);
+        int reponse = QMessageBox::warning(this, tr("Zone protégée"), tr("Vous êtes sur le point d'entrer en <strong>mode Rush</strong>\nCe mode est destiné uniquement à la vente à la volée, lors des récréations par exemple, quand l'affluence est trop fort.\n\n<h3>Voulez-vous continuer ?</h3>"), QMessageBox::Yes | QMessageBox::Abort, QMessageBox::Abort);
         if (reponse == QMessageBox::Yes)
         {
+            if (QInputDialog::getText(this, tr("Authentification"), tr("Merci d'entrer une nouvelle fois votre mot de passe\n(date de naissance, format JJMMAAAA)"), QLineEdit::Password, "", nullptr, Qt::Dialog, Qt::ImhDigitsOnly) == seller->getBirthday().remove("-"))
+            {
             rushMode = true;
             pay->setEnabled(false);
             cancel->setEnabled(false);
@@ -651,6 +662,9 @@ void MainWindow::rushTouch()
                     stream.setCodec("UTF-8");
                     stream << endl << "          ********************          "  << endl << "CODE RED ALERT : RUSH MODE ENGAGED AT " << QDateTime::currentDateTime().toString("HH:mm") << endl;
             file.close();
+            } else {
+                QMessageBox::critical(this, tr("Connexion refusée"), tr("<strong>Accès refusé.</strong>\n Le mot de passe entré est erroné"));
+            }
         }
     }
     else if (rush->text() == tr("TERMINER"))

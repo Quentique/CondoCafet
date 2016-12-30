@@ -28,30 +28,10 @@ DbManager::DbManager(const QString& path)
                )");
 
     }
-    if (db.record("till").isEmpty())
-    {
-        QSqlQuery query(db);
-        query.exec("CREATE TABLE till ( id INTEGER PRIMARY KEY, type REAL, number INTEGER )");
-        query.prepare("INSERT INTO till (type, number) VALUES (:value, 0)");
-
-        double tableau[12] = {0.01, 0.02, 0.05, 0.10, 0.20, 0.50, 1.00, 2.00, 5.00, 10.00, 20.00, 50.00};
-        for (int i = 0 ; i < 12 ; i++)
-        {
-            query.bindValue(":value", QVariant(tableau[i]));
-            query.exec();
-            query.prepare("INSERT INTO till (type, number) VALUES (:value, 0)");
-        }
-    }
     if (db.record("sellers").isEmpty())
     {
         QSqlQuery query(db);
-        query.exec("CREATE TABLE sellers (id INTEGER , name VARCHAR, class VARCHAR, amount REAL, PRIMARY KEY (id) )");
-    }
-
-    if (db.record("miscellaneous").isEmpty())
-    {
-        QSqlQuery query(db);
-        query.exec("CREATE TABLE miscellaneous (id INTEGER PRIMARY KEY, name VARCHAR, value VARCHAR )");
+        query.exec("CREATE TABLE sellers (id INTEGER , name VARCHAR, class VARCHAR, amount REAL, birthday TEXT, PRIMARY KEY (id) )");
     }
 }
 

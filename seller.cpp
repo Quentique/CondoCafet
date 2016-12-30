@@ -1,6 +1,6 @@
 #include "seller.h"
 
-Seller::Seller(QString g_name, QString g_class) : name(g_name), classe(g_class), enter_date(QDateTime::currentDateTime()), nb_ventes(0), sold(0.00f)
+Seller::Seller(QString g_name, QString g_class, QString birth) : name(g_name), classe(g_class), enter_date(QDateTime::currentDateTime()), nb_ventes(0), sold(0.00f), birthday(birth)
 {
 }
 
@@ -23,3 +23,4 @@ QDateTime Seller::getEnterTime()
 int Seller::getSoldCount() { return nb_ventes; }
 double Seller::getAmount() { return sold; }
 QString Seller::getClass() { return classe; }
+QString Seller::getBirthday() { return birthday; }
