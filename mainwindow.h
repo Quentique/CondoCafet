@@ -44,6 +44,7 @@ public slots:
     void paySlot();
     void rushTouch();
     void moneyTouch(QString data);
+    void unlock();
 
 private:
     double multiplyby;
@@ -62,6 +63,7 @@ private:
     QDoubleSpinBox *countd;
     QSignalMapper *products_mapper, *calc_mapper, *money_mapper;
     QHash<QString, Product*> *product_list;
+    QAction *productsManagement, *sellersManagement;
 };
 
 #endif // MAINWINDOW_H

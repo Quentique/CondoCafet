@@ -27,12 +27,13 @@ public slots:
     void expandRow(QModelIndex index);
     void resizeRow(QModelIndex, QModelIndex index);
     void writeInformation();
+    void passwordHelp();
 
 private:
     QSqlDatabase *sql;
     QSettings *settings;
-    QGroupBox *colours;
-    QPushButton *ok, *cancel;
+    QGroupBox *colours, *general;
+    QPushButton *ok, *cancel, *passwordchange;
     QTableView *coloursT;
     QLabel *colours_explanation;
     QAction *delete_r, *create;

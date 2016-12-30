@@ -15,6 +15,10 @@
 #include <QColor>
 #include <QPixmap>
 #include <QSqlQuery>
+#include <QFormLayout>
+#include <QInputDialog>
+#include <QCryptographicHash>
+#include <QMessageBox>
 #include "color_wheel.hpp"
 
 Settings::Settings(QSqlDatabase *db) : QDialog()
@@ -28,6 +32,15 @@ Settings::Settings(QSqlDatabase *db) : QDialog()
     QHBoxLayout *boutons = new QHBoxLayout;
     boutons->addWidget(ok, 0, Qt::AlignRight);
     boutons->addWidget(cancel, 0, Qt::AlignRight);
+
+    general = new QGroupBox;
+    general->setTitle(tr("Général"));
+
+    passwordchange = new QPushButton("Changer");
+
+    QFormLayout *form = new QFormLayout;
+    form->addRow("Mot de passe : ", passwordchange);
+    general->setLayout(form);
 
     colours = new QGroupBox;
     colours->setTitle(tr("Gestion des catégories"));
@@ -46,7 +59,9 @@ Settings::Settings(QSqlDatabase *db) : QDialog()
     coloursT->setStyleSheet("QTableView{ background-color: #F5F5F5; }");
     coloursT->setItemDelegateForColumn(1, new ColorDelegate(this));
     coloursT->setMinimumHeight(220);
+
     QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(general);
     layout->addWidget(colours);
     layout->addLayout(boutons);
 
@@ -67,6 +82,7 @@ Settings::Settings(QSqlDatabase *db) : QDialog()
     connect(coloursT, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(expandRow(QModelIndex)));
     connect(coloursT->selectionModel(), SIGNAL(currentChanged(QModelIndex, QModelIndex)), this, SLOT(resizeRow(QModelIndex,QModelIndex)));
     connect(ok, SIGNAL(clicked(bool)), this, SLOT(writeInformation()));
+    connect(passwordchange, SIGNAL(clicked(bool)), this, SLOT(passwordHelp()));
 }
 
 void Settings::fullInformation()
@@ -175,4 +191,39 @@ void Settings::writeInformation()
 
     settings->setValue("colours", map);
     accept();
+}
+
+void Settings::passwordHelp()
+{
+    QString hash = settings->value("admin", "NULL").toString();
+
+    if (hash != "NULL")
+    {
+         QString password = QInputDialog::getText(this, tr("Modification"), tr("Merci d'entrer l'ancien mot de passe"), QLineEdit::Password);
+         if (hash != QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256))
+         {
+            return;
+         }
+    }
+
+    QString passwordnew, passwordnew2;
+    passwordnew = "NULL";
+    passwordnew2 = "NULL";
+    bool continued = true;
+
+    while(continued)
+    {
+    passwordnew = QInputDialog::getText(this, tr("Modification"), tr("Merci d'entrer le nouveau mot de passe"), QLineEdit::Password);
+    passwordnew2 = QInputDialog::getText(this, tr("Modification"), tr("Merci d'entrer de nouveau le nouveau mot de passe"), QLineEdit::Password);
+    if (passwordnew == passwordnew2)
+    {
+        continued = false;
+    } else
+        QMessageBox::warning(this, tr("Erreur"), tr("Les mots de passe ne sont pas identiques"));
+    }
+
+
+    settings->setValue("admin", QCryptographicHash::hash(passwordnew.toUtf8(), QCryptographicHash::Sha256));
+    QMessageBox::information(this, tr("Mot de passe modifié"), tr("Le mot de passe administrateur a bien été modifié."));
+
 }

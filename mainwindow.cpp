@@ -21,6 +21,7 @@
 #include <QTextStream>
 #include <QCloseEvent>
 #include <QInputDialog>
+#include <QCryptographicHash>
 #include "sellerselector.h"
 
 MainWindow::MainWindow()
@@ -47,13 +48,17 @@ MainWindow::MainWindow()
 
     QMenu *admin = menuBar()->addMenu(tr("&Administration"));
 
-    QAction *productsManagement = new QAction(tr("Gestion des &produits"), this);
-    QAction *sellersManagement = new QAction(tr("Gestion des &vendeurs"), this);
+    productsManagement = new QAction(tr("Gestion des &produits"), this);
+    sellersManagement = new QAction(tr("Gestion des &vendeurs"), this);
     QAction *settingsModif = new QAction(tr("Paramètres"), this);
+    QAction *unlock = new QAction(tr("Dévérouiller"), this);
+    productsManagement->setEnabled(false);
+    sellersManagement->setEnabled(false);
     admin->addAction(productsManagement);
     admin->addAction(sellersManagement);
     admin->addSeparator();
     admin->addAction(settingsModif);
+    admin->addAction(unlock);
 
     dated = new QLineEdit;
     dated->setText(QDate::currentDate().toString("dddd d MMMM yyyy"));
@@ -278,6 +283,7 @@ MainWindow::MainWindow()
     connect(money_mapper, SIGNAL(mapped(QString)), this, SLOT(moneyTouch(QString)));
     connect(pay, SIGNAL(clicked(bool)), this, SLOT(paySlot()));
     connect(rush, SIGNAL(clicked(bool)), this, SLOT(rushTouch()));
+    connect(unlock, SIGNAL(triggered(bool)), this, SLOT(unlock()));
 }
 
 void MainWindow::showProductsEdit()
@@ -296,6 +302,40 @@ void MainWindow::showSettings()
 {
     Settings *settings = new Settings(manager->getDB());
     settings->exec();
+}
+
+void MainWindow::unlock()
+{
+    QAction *action = static_cast<QAction*>(sender());
+    if (action->text() == tr("Dévérouiller"))
+    {
+        if (psettings->value("admin", "NULL") == "NULL")
+        {
+            sellersManagement->setEnabled(true);
+            productsManagement->setEnabled(true);
+            action->setText(tr("Verouiller"));
+        }
+        else
+        {
+            QString hash = psettings->value("admin").toString();
+            QString password = QInputDialog::getText(this, tr("Accès protégé"), tr("Merci d'entrer le mot de passe administrateur"), QLineEdit::Password);
+            if (hash == QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha256))
+            {
+                sellersManagement->setEnabled(true);
+                productsManagement->setEnabled(true);
+                action->setText(tr("Verouiller"));
+            }
+            else
+            {
+                QMessageBox::critical(this, tr("Accès refusé"), tr("Mot de passe erroné\nAccès refusé"));
+            }
+        }
+    } else
+    {
+        sellersManagement->setEnabled(false);
+        productsManagement->setEnabled(false);
+        action->setText(tr("Dévérouiller"));
+    }
 }
 
 void MainWindow::actualiseTable()
@@ -384,15 +424,17 @@ void MainWindow::sign_slot()
 
         QFile file(location);
         QFileInfo info2(location);
+        if (!info2.exists()) {
             file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
             QTextStream stream(&file);
             stream.setCodec("UTF-8");
             stream.setGenerateByteOrderMark(true);
+
             stream << "************** CondoCafet **************" << endl;
             stream << QDate::currentDate().toString("dddd dd MMMM yyyy") << endl;
             stream << "****************************************" << endl;
             file.close();
-
+        }
 
         if (!file.open(QFile::WriteOnly | QFile::Append | QFile::Text))
         {
