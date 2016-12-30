@@ -20,6 +20,7 @@ signals:
 public slots:
     void check(int, QSqlRecord &record);
     void addRow();
+    void deleteRow();
 };
 
 #endif // PRODUCTSEDIT_H

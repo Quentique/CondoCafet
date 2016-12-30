@@ -13,7 +13,7 @@ SellersEdit::SellersEdit(QSqlDatabase *db) : MainEdit(db, "sellers")
     model->setHeaderData(2, Qt::Horizontal, tr("Classe"));
     model->setHeaderData(4, Qt::Horizontal, tr("Anniversaire"));
 
-    view->hideColumn(0);
+   // view->hideColumn(0);
     view->hideColumn(3);
     view->setColumnWidth(1, 200);
 
@@ -34,6 +34,7 @@ void SellersEdit::addRow()
     query.exec();
     qDebug() << query.lastError().text();
     static_cast<QSqlTableModel*>(model->sourceModel())->select();
+    Smodel->select();
 }
 
 void SellersEdit::check(int, QSqlRecord &record)

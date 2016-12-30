@@ -29,7 +29,6 @@ QWidget *NumberDelegate::createEditor(QWidget *parent, const QStyleOptionViewIte
 void NumberDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     double value = index.data(Qt::EditRole).toDouble();
-
     QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
     spinBox->setValue(value);
 }
@@ -39,7 +38,6 @@ void NumberDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, co
     QDoubleSpinBox *spinBox = static_cast<QDoubleSpinBox*>(editor);
     spinBox->interpretText();
     double value = round(spinBox->value()*20)/20;
-
     model->setData(index, value, Qt::EditRole);
 }
 void NumberDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &) const

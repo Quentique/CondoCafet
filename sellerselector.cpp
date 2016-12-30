@@ -65,9 +65,7 @@ int SellerSelector::getResult()
 
 void SellerSelector::select()
 {
-    //QStandardItemModel *modell = static_cast<QStandardItemModel*>(model->sourceModel());
     result = model->data(selection->currentIndex(), Qt::UserRole+1).toInt();
-
     close();
 }
 

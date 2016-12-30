@@ -58,7 +58,7 @@ private:
     QSettings *psettings;
     QLineEdit *dated, *sellerd, *totald;
     QLabel *soldd;
-    QPushButton *sign, *rush, *pay, *cancel, *retour, *totalmd;
+    QPushButton *sign, *rush, *pay, *cancel, *totalmd;
     QPushButton *calc[14], *coins[12];
     QDoubleSpinBox *countd;
     QSignalMapper *products_mapper, *calc_mapper, *money_mapper;

@@ -66,7 +66,8 @@ MainEdit::MainEdit(QSqlDatabase *db, QString gtable) : QWidget()
     connect(end, SIGNAL(clicked(bool)), this, SLOT(close()));
     connect(add, SIGNAL(clicked(bool)), this, SLOT(addRow()));
     connect(view, SIGNAL(clicked(QModelIndex)), this, SLOT(selectRow()));
-    connect(remove, SIGNAL(clicked(bool)), this, SLOT(deleteRow()));
+    if (*table!="products")
+        connect(remove, SIGNAL(clicked(bool)), this, SLOT(deleteRow()));
     connect(sort, SIGNAL(textChanged(QString)), this, SLOT(sortBy()));
 
     setLayout(layout);
@@ -86,11 +87,15 @@ void MainEdit::selectRow()
 
 void MainEdit::deleteRow()
 {
-    int id = Smodel->record(view->selectionModel()->selection().indexes().at(0).row()).field("id").value().toInt();
+    //int id = Smodel->record(    view->selectionModel()->selectedRows().at(0).row()).field("id").value().toInt();
+    int id = view->selectionModel()->selectedRows(0).at(0).data().toInt();
+    qDebug() << view->selectionModel()->selectedRows(0).at(0).data().toString();
+
     QSqlQuery query(Smodel->database());
     query.prepare("DELETE FROM " + *table + " WHERE id = :id");
     query.bindValue(":id", id);
     query.exec();
+    qDebug() << query.lastError().text();
     Smodel->select();
     remove->setEnabled(false);
 }

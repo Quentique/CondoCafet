@@ -263,7 +263,7 @@ MainWindow::MainWindow()
     layout->addLayout(grill);
 
     setCentralWidget(centralWidget);
-    setWindowState(Qt::WindowFullScreen);
+   // setWindowState(Qt::WindowFullScreen);
     setWindowTitle("CondoCafet'");
     centralWidget->setLayout(layout);
     show();
@@ -643,6 +643,7 @@ void MainWindow::moneyTouch(QString data)
         }
     }
 }
+
 void MainWindow::rushTouch()
 {
     if (rush->text() == tr("RUSH Mode") && seller != 0) {
@@ -688,12 +689,12 @@ void MainWindow::rushTouch()
             QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
             location += "/log/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
 
-                    QFile file(location);
+            QFile file(location);
 
-                    file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
-                    QTextStream stream(&file);
-                    stream.setCodec("UTF-8");
-                    stream << QString::number(amount, 'f', 2) + QString::fromUtf8(" €") << tr(" réalisés pendant le Rush").toUtf8() << endl << "EXIT RUSH MODE AT " << QDateTime::currentDateTime().toString("HH:mm") << endl <<"          ********************          ";
+            file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
+            QTextStream stream(&file);
+            stream.setCodec("UTF-8");
+            stream << QString::number(amount, 'f', 2) + QString::fromUtf8(" €") << tr(" réalisés pendant le Rush").toUtf8() << endl << "EXIT RUSH MODE AT " << QDateTime::currentDateTime().toString("HH:mm") << endl <<"          ********************          ";
             file.close();
             totald->setText(tr("RUSH TERMINÉ"));
             totald->setStyleSheet("background-color: white; color: black;");

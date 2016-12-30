@@ -11,7 +11,6 @@ DbManager::DbManager(const QString& path)
 
     if(!db.open())
     {
-        //QMessageBox::warning(this, QObject::tr("Aucune base de données"), QObject::tr("La base de données indiquée n'existe pas. Une nouvelle base a été crée."));
         QSqlQuery query(db);
         query.exec("CREATE DATABASE database");
     }
@@ -25,6 +24,7 @@ DbManager::DbManager(const QString& path)
                    price INTEGER UNSIGNED, \
                    colour VARCHAR, \
                    sold INTEGER \
+                   addDate TEXT \
                )");
 
     }
