@@ -2,7 +2,7 @@
 #include "color_wheel.hpp"
 #include <QDebug>
 #include <QSettings>
-#include <QCoreApplication>
+#include <QStandardPaths>
 
 ComboDelegate::ComboDelegate(QObject *parent) : QStyledItemDelegate(parent)
 {
@@ -46,7 +46,7 @@ QString ComboDelegate::displayText(const QVariant &value, const QLocale &locale)
 
 QMap<QString, QVariant> ComboDelegate::getColours()
 {
-    QSettings *settings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
+    QSettings *settings = new QSettings(QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1) + "/settings.ini", QSettings::IniFormat);
     QMap<QString, QVariant> map = settings->value("colours").toMap();
 
     return map;

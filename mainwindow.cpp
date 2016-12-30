@@ -16,6 +16,7 @@
 #include <QSqlQuery>
 #include <QMessageBox>
 #include <QFileInfo>
+#include <QFile>
 #include <QDir>
 #include <QStandardPaths>
 #include <QTextStream>
@@ -34,7 +35,7 @@ MainWindow::MainWindow()
     payMode = false;
     rushMode = false;
 
-    psettings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
+    psettings = new QSettings(QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1) + "/settings.ini", QSettings::IniFormat);
 
     if(psettings->value("sold", -1).toInt() == -1)
         psettings->setValue("sold", 0);
@@ -261,6 +262,12 @@ MainWindow::MainWindow()
     QVBoxLayout *layout = new QVBoxLayout;
     layout->addLayout(general);
     layout->addLayout(grill);
+
+    QFile stylesheet(QCoreApplication::applicationDirPath() + "/style.css");
+    stylesheet.open(QFile::ReadOnly | QFile::Text);
+    QString style = stylesheet.readAll().data();
+    qDebug() << style;
+    setStyleSheet(style);
 
     setCentralWidget(centralWidget);
    // setWindowState(Qt::WindowFullScreen);

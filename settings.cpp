@@ -20,10 +20,11 @@
 #include <QInputDialog>
 #include <QCryptographicHash>
 #include <QMessageBox>
+#include <QStandardPaths>
 
 Settings::Settings(QSqlDatabase *db) : QDialog()
 {
-    settings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
+    settings = new QSettings(QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1) + "/settings.ini", QSettings::IniFormat);
     ok = new QPushButton(tr("Valider"));
     ok->setDefault(true);
     cancel = new QPushButton(tr("Annuler"));
