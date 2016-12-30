@@ -91,7 +91,6 @@ void MainEdit::deleteRow()
     query.prepare("DELETE FROM " + *table + " WHERE id = :id");
     query.bindValue(":id", id);
     query.exec();
-    qDebug() << query.lastError().text() << " " << *table << " " << id;
     Smodel->select();
     remove->setEnabled(false);
 }
@@ -99,6 +98,5 @@ void MainEdit::deleteRow()
 void MainEdit::sortBy()
 {
     QRegExp reg("(" + sort->text() +")", Qt::CaseInsensitive);
-
     model->setFilterRegExp(reg);
 }

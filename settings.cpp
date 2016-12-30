@@ -1,5 +1,6 @@
 #include "settings.h"
 #include "colordelegate.h"
+#include "color_wheel.hpp"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
@@ -19,7 +20,6 @@
 #include <QInputDialog>
 #include <QCryptographicHash>
 #include <QMessageBox>
-#include "color_wheel.hpp"
 
 Settings::Settings(QSqlDatabase *db) : QDialog()
 {
@@ -136,10 +136,10 @@ void Settings::createRow()
 
     itemPof->setIcon(icon);
 
-   model->setItem(model->rowCount(), 0, itemPif);
-   model->setItem(model->rowCount()-1, 1, itemPof);
+    model->setItem(model->rowCount(), 0, itemPif);
+    model->setItem(model->rowCount()-1, 1, itemPof);
 
-   coloursT->setModel(model);
+    coloursT->setModel(model);
 }
 
 void Settings::deleteRow()
@@ -152,7 +152,7 @@ void Settings::deleteRow()
 void Settings::expandRow(QModelIndex index)
 {
     if (index.column() == 1)
-    coloursT->setRowHeight(index.row(), 200);
+        coloursT->setRowHeight(index.row(), 200);
 }
 
 void Settings::resizeRow(QModelIndex, QModelIndex index)
@@ -213,15 +213,13 @@ void Settings::passwordHelp()
 
     while(continued)
     {
-    passwordnew = QInputDialog::getText(this, tr("Modification"), tr("Merci d'entrer le nouveau mot de passe"), QLineEdit::Password);
-    passwordnew2 = QInputDialog::getText(this, tr("Modification"), tr("Merci d'entrer de nouveau le nouveau mot de passe"), QLineEdit::Password);
-    if (passwordnew == passwordnew2)
-    {
-        continued = false;
-    } else
-        QMessageBox::warning(this, tr("Erreur"), tr("Les mots de passe ne sont pas identiques"));
+        passwordnew = QInputDialog::getText(this, tr("Modification"), tr("Merci d'entrer le nouveau mot de passe"), QLineEdit::Password);
+        passwordnew2 = QInputDialog::getText(this, tr("Modification"), tr("Merci d'entrer de nouveau le nouveau mot de passe"), QLineEdit::Password);
+        if (passwordnew == passwordnew2)
+            continued = false;
+        else
+            QMessageBox::warning(this, tr("Erreur"), tr("Les mots de passe ne sont pas identiques"));
     }
-
 
     settings->setValue("admin", QCryptographicHash::hash(passwordnew.toUtf8(), QCryptographicHash::Sha256));
     QMessageBox::information(this, tr("Mot de passe modifié"), tr("Le mot de passe administrateur a bien été modifié."));

@@ -33,8 +33,6 @@ MainWindow::MainWindow()
     payment = 0.00f;
     payMode = false;
     rushMode = false;
-   /* current->addArticle(new Product("Chocolat", 10.20, "Beu"), 5);
-    current->addArticle(new Product("Bonbons", 152, "rouge"), 1);*/
 
     psettings = new QSettings(QCoreApplication::applicationDirPath() + "/settings.ini", QSettings::IniFormat);
 
@@ -71,9 +69,7 @@ MainWindow::MainWindow()
     sellerd->setReadOnly(true);
     sellerd->setAlignment(Qt::AlignCenter);
     sellerd->setProperty("stylegen", true);
-    if (seller == 0)
-    {
-        sellerd->setText(tr("VERROUILLÉ"));
+    if (seller == 0) { sellerd->setText(tr("VERROUILLÉ"));
     } else { sellerd->setText(seller->getName()); }
 
     soldd = new QLabel;
@@ -167,19 +163,15 @@ MainWindow::MainWindow()
     calclay->addWidget(calc[13], 3, 3);
     calclay->addWidget(calc[10], 0, 3);
     calclay->addWidget(calc[11], 1, 3);
-   // calclay->addWidget(calc[12], 3, 1);
-   // calclay->addWidget(calc[13], 3, 2);
 
     pay = new QPushButton(tr("PAYER"));
     pay->setStyleSheet("width: inherit;");
     cancel = new QPushButton(tr("ANNULER"));
-   // retour = new QPushButton(tr("Retour"));
     totalmd = new QPushButton(tr("TOTAL"));
 
     QVBoxLayout *cash = new QVBoxLayout;
     cash->addWidget(pay, 0);
     cash->addWidget(cancel, 0);
-   // cash->addWidget(retour, 0);
     cash->addWidget(totalmd, 2, Qt::AlignTop);
 
     QStringList money;
@@ -263,7 +255,6 @@ MainWindow::MainWindow()
     grill->addLayout(options, 1, 0);
 
     grill->setAlignment(calclay, Qt::AlignTop);
- //   grill->setSizeConstraint(QLayout::SetFixedSize);
     grill->setColumnStretch(1, 20);
     grill->addItem(new QSpacerItem(20, 20), 0, 1);
 
@@ -271,10 +262,8 @@ MainWindow::MainWindow()
     layout->addLayout(general);
     layout->addLayout(grill);
 
-   // layout->setSizeConstraint(QLayout::SetMinAndMaxSize);
-
     setCentralWidget(centralWidget);
-    //setWindowState(Qt::WindowFullScreen);
+    setWindowState(Qt::WindowFullScreen);
     setWindowTitle("CondoCafet'");
     centralWidget->setLayout(layout);
     show();
@@ -360,9 +349,6 @@ void MainWindow::actualiseTable()
         item->setTextAlignment(Qt::AlignCenter);
         item->setFont(QFont("Arial", 20));
         sold_details->setItem(sold_details->rowCount()-1, 0, item);
-        /*sold_details->setColumnWidth(0, sold_details->width());
-        sold_details->setRowHeight(0, sold_details->height());*/
-
     }
     else
     {
@@ -383,20 +369,16 @@ void MainWindow::actualiseTable()
                 sold_details->setItem(sold_details->rowCount()-1, 0, item1);
                 sold_details->setItem(sold_details->rowCount()-1, 1, item2);
             }
-           // sold_details->setCurrentCell(sold_details->rowCount()-1, 0);
             sold_details->setRangeSelected(QTableWidgetSelectionRange(sold_details->rowCount()-1, 0, sold_details->rowCount()-1, sold_details->columnCount()-1), true);
             sold_details->resizeRowsToContents();
             sold_details->resizeColumnToContents(0);
             sold_details->horizontalHeader()->setStretchLastSection(true);
+
             if (totald->text().contains("TOTAL"))
             {
                 showTotal();
             }
         }
-       /* sold_details->setColumnWidth(0, sold_details->width()*0.2);
-        sold_details->setColumnWidth(1, sold_details->width()*0.7);
-        sold_details->setColumnWidth(2, sold_details->width()*0.15);
-        sold_details->setColumnWidth(3, sold_details->width()*0.15);*/
     }
 }
 
@@ -407,61 +389,61 @@ void MainWindow::sign_slot()
         SellerSelector *selector = new SellerSelector(0, manager->getDB());
         selector->exec();
         int result = selector->getResult();
+
         QSqlQuery query("SELECT name, class, birthday FROM sellers WHERE id = " + QString::number(result), *manager->getDB());
         query.next();
+
         QString password = query.value("birthday").toString();
         password.remove("-");
-        qDebug() << password;
+
         QString entree = QInputDialog::getText(this, "Connexion", "Merci de saisir votre date de naissance sous le format JJMMAAA\n(sans tirets) afin de vous connecter",  QLineEdit::Password, "", nullptr, Qt::Dialog , Qt::ImhDigitsOnly);
         if (entree == password)
         {
-        Seller *sellerr = new Seller(query.value("name").toString(), query.value("class").toString(), query.value("birthday").toString());
-        seller = sellerr;
-        actualiseVendeur();
-        sign->setText(tr("Sign Out"));
-        current = new Vente(psettings->value("sold").toInt() + 1);
-        totald->setText("0.00 €");
+            Seller *sellerr = new Seller(query.value("name").toString(), query.value("class").toString(), query.value("birthday").toString());
+            seller = sellerr;
+            actualiseVendeur();
+            sign->setText(tr("Sign Out"));
+            current = new Vente(psettings->value("sold").toInt() + 1);
+            totald->setText("0.00 €");
 
-        QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
-        location += "/log";
-        QFileInfo info(location);
-        if (!info.exists())
-        {
-            QDir cur(QDir::current());
-            cur.mkpath(location);
-        }
+            QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
+            location += "/log";
+            QFileInfo info(location);
+            if (!info.exists())
+            {
+                QDir cur(QDir::current());
+                cur.mkpath(location);
+            }
 
-        location += "/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
+            location += "/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
 
-        QFile file(location);
-        QFileInfo info2(location);
-        if (!info2.exists()) {
-            file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
-            QTextStream stream(&file);
-            stream.setCodec("UTF-8");
-            stream.setGenerateByteOrderMark(true);
+            QFile file(location);
+            QFileInfo info2(location);
+            if (!info2.exists()) {
+                file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
+                QTextStream stream(&file);
+                stream.setCodec("UTF-8");
+                stream.setGenerateByteOrderMark(true);
 
-            stream << "************** CondoCafet **************" << endl;
-            stream << QDate::currentDate().toString("dddd dd MMMM yyyy") << endl;
-            stream << "****************************************" << endl;
-            file.close();
-        }
+                stream << "************** CondoCafet **************" << endl;
+                stream << QDate::currentDate().toString("dddd dd MMMM yyyy") << endl;
+                stream << "****************************************" << endl;
+                file.close();
+            }
 
-        if (!file.open(QFile::WriteOnly | QFile::Append | QFile::Text))
-        {
-            QMessageBox::critical(this, tr("Erreur d'E/S"), tr("CondoCafet n'a pas pu écrire le log de cette session de vente."));
-        }
-        else
-        {
-            QTextStream stream(&file);
-            stream.setCodec("UTF-8");
-            stream << endl << QString::fromUtf8("Ouverture à ") << seller->getEnterTime().toString("HH:mm") << " par " << seller->getName() << ", " << seller->getClass();
-            file.close();
-        }
+            if (!file.open(QFile::WriteOnly | QFile::Append | QFile::Text))
+            {
+                QMessageBox::critical(this, tr("Erreur d'E/S"), tr("CondoCafet n'a pas pu écrire le log de cette session de vente."));
+            }
+            else
+            {
+                QTextStream stream(&file);
+                stream.setCodec("UTF-8");
+                stream << endl << QString::fromUtf8("Ouverture à ") << seller->getEnterTime().toString("HH:mm") << " par " << seller->getName() << ", " << seller->getClass();
+                file.close();
+            }
         } else
-        {
             QMessageBox::critical(this, tr("Mot de passe erroné"), tr("La date de naissance entrée est erronée.\nConnexion refusée"));
-        }
     }
     else
     {
@@ -470,39 +452,41 @@ void MainWindow::sign_slot()
         {
              reponse = QMessageBox::warning(this, tr("ATTENTION"), tr("Vous essayez de vous déconnecter alors que la vente en cours n'est pas terminée\nÊtes-vous sûr de vouloir vous déconnecter ?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
         }
+
         if (reponse == QMessageBox::Yes) {
-        QSqlQuery query("SELECT amount FROM sellers WHERE name = '" + seller->getName() + "'", *manager->getDB());
-        query.next();
-        double amount = query.value("amount").toDouble();
-        qDebug() << amount;
-        amount += seller->getAmount();
-        query.prepare("UPDATE sellers SET amount = ? WHERE name = ?");
-        query.bindValue(0, amount);
-        query.bindValue(1, seller->getName());
-        query.exec();
-        QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
-        location += "/log/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
-        QFile file(location);
-        if (!file.open(QFile::WriteOnly | QFile::Append | QFile::Text))
-        {
-            QMessageBox::critical(this, tr("Erreur d'E/S"), tr("CondoCafet n'a pas pu écrire le log de cette session de vente."));
-        }
-        else
-        {
-            QTextStream stream(&file);
-            stream.setCodec("UTF-8");
-            stream << endl << QString::fromUtf8("Fermeture à ") << QDateTime::currentDateTime().toString("HH:mm") << ", " << QString::number(seller->getSoldCount()) << " ventes pour un total de " << QString::number(seller->getAmount(), 'f', 2) << QString::fromUtf8(" €") << endl;
-            stream << "****************************************" << endl;
-            file.close();
-        }
-        delete seller;
-        seller = 0;
-        actualiseVendeur();
-        sign->setText(tr("Sign In"));
-        totald->setText(tr("VERROUILLÉ"));
-        delete current;
-        current = 0;
-        countd->setValue(0.00f);
+            QSqlQuery query("SELECT amount FROM sellers WHERE name = '" + seller->getName() + "'", *manager->getDB());
+            query.next();
+            double amount = query.value("amount").toDouble();
+            amount += seller->getAmount();
+
+            query.prepare("UPDATE sellers SET amount = ? WHERE name = ?");
+            query.bindValue(0, amount);
+            query.bindValue(1, seller->getName());
+            query.exec();
+
+            QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
+            location += "/log/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
+            QFile file(location);
+            if (!file.open(QFile::WriteOnly | QFile::Append | QFile::Text))
+            {
+                QMessageBox::critical(this, tr("Erreur d'E/S"), tr("CondoCafet n'a pas pu écrire le log de cette session de vente."));
+            }
+            else
+            {
+                QTextStream stream(&file);
+                stream.setCodec("UTF-8");
+                stream << endl << QString::fromUtf8("Fermeture à ") << QDateTime::currentDateTime().toString("HH:mm") << ", " << QString::number(seller->getSoldCount()) << " ventes pour un total de " << QString::number(seller->getAmount(), 'f', 2) << QString::fromUtf8(" €") << endl;
+                stream << "****************************************" << endl;
+                file.close();
+            }
+            delete seller;
+            seller = 0;
+            actualiseVendeur();
+            sign->setText(tr("Sign In"));
+            totald->setText(tr("VERROUILLÉ"));
+            delete current;
+            current = 0;
+            countd->setValue(0.00f);
         }
     }
 }
@@ -510,9 +494,9 @@ void MainWindow::sign_slot()
 void MainWindow::actualiseVendeur()
 {
     if (seller != 0) {
-    actualiseTable();
-    sellerd->setText(seller->getName());
-    soldd->setText(tr("Vente N°") + QString::number(psettings->value("sold").toInt() + 1));
+        actualiseTable();
+        sellerd->setText(seller->getName());
+        soldd->setText(tr("Vente N°") + QString::number(psettings->value("sold").toInt() + 1));
     } else {
         actualiseTable();
         sellerd->setText(tr("VERROUILLÉ"));
@@ -522,83 +506,71 @@ void MainWindow::actualiseVendeur()
 void MainWindow::cancelSell()
 {
     if (current != 0) {
-    int number = current->getNumber();
-    delete current;
-    current = new Vente(number);
-    actualiseTable();
-    multiplyby = 0;
-    payment = 0;
-    payMode = false;
+        int number = current->getNumber();
+        delete current;
+        current = new Vente(number);
+        actualiseTable();
+        multiplyby = 0;
+        payment = 0;
+        payMode = false;
     }
 }
 
 void MainWindow::showTotal()
 {
     if (current != 0) {
-    QString start = (payMode) ? tr("RESTANT : ") : tr("TOTAL : ");
-    if (payMode && payment > current->getTotal())
-        start = tr("À RENDRE : ");
+        QString start = (payMode) ? tr("RESTANT : ") : tr("TOTAL : ");
+        if (payMode && payment > current->getTotal())
+            start = tr("À RENDRE : ");
 
-    totald->setText(start + QString::number((payMode) ? current->getTotal() - payment : current->getTotal(), 'f', 2) + " €");
-    if (start == "À RENDRE : ")
-    {
-        totald->setText(start + QString::number(qAbs(current->getTotal()-payment), 'f', 2) + " €");
-    }
-    if (rushMode)
-        totald->setText("RUSH IN PROGRESS");
-    multiplyby = 0;
+        totald->setText(start + QString::number((payMode) ? current->getTotal() - payment : current->getTotal(), 'f', 2) + " €");
+
+        if (start == "À RENDRE : ")
+            totald->setText(start + QString::number(qAbs(current->getTotal()-payment), 'f', 2) + " €");
+        if (rushMode)
+            totald->setText("RUSH IN PROGRESS");
+
+        multiplyby = 0;
     }
 }
 
 void MainWindow::multiply(int gnumber)
 {
     if (current != 0) {
-    multiplyby = (multiplyby==0) ? gnumber : QString(QString::number(multiplyby) + QString::number(gnumber)).toInt();
-    QString what = (!payMode) ? " ×" : "";
-    totald->setText(QString::number(multiplyby) + what);
+        multiplyby = (multiplyby==0) ? gnumber : QString(QString::number(multiplyby) + QString::number(gnumber)).toInt();
+        QString what = (!payMode) ? " ×" : "";
+        totald->setText(QString::number(multiplyby) + what);
     }
 }
 
 void MainWindow::touchC()
 {
-    if (calc[11]->text() == "C")
-    {
-    if (multiplyby != 0)
-    {
-        multiplyby = 0;
-        showTotal();
-    }
-    else if (!sold_details->selectedRanges().isEmpty())
-    {
-
-        current->deleteArticle(product_list->find(sold_details->item(sold_details->selectedRanges().first().bottomRow(), 1)->text()).value());
-        actualiseTable();
-    }
-    }
-    else
-    {
+    if (calc[11]->text() == "C") {
+        if (multiplyby != 0) {
+            multiplyby = 0;
+            showTotal();
+        }
+        else if (!sold_details->selectedRanges().isEmpty()) {
+            current->deleteArticle(product_list->find(sold_details->item(sold_details->selectedRanges().first().bottomRow(), 1)->text()).value());
+            actualiseTable();
+        }
+    } else {
         current->setQuantity(product_list->find(sold_details->item(sold_details->selectedRanges().first().bottomRow(), 1)->text()).value(), sold_details->item(sold_details->selectedRanges().first().topRow(), 0)->text().left(sold_details->item(sold_details->selectedRanges().first().topRow(), 0)->text().length()-2).toInt() - 1);
-        qDebug() << sold_details->item(sold_details->selectedRanges().first().topRow(), 0)->text();
         actualiseTable();
     }
 }
 
 void MainWindow::touchX()
 {
-    if (!payMode)
-    {
-        if (multiplyby != 0 && !sold_details->selectedRanges().isEmpty())
-        {
-          current->setQuantity(product_list->find(sold_details->item(sold_details->selectedRanges().first().bottomRow(), 1)->text()).value(), multiplyby);
-           showTotal();
-           actualiseTable();
-           multiplyby = 0;
+    if (!payMode) {
+        if (multiplyby != 0 && !sold_details->selectedRanges().isEmpty()) {
+            current->setQuantity(product_list->find(sold_details->item(sold_details->selectedRanges().first().bottomRow(), 1)->text()).value(), multiplyby);
+            showTotal();
+            actualiseTable();
+            multiplyby = 0;
         }
-    }
-    else
-    {
-        if (multiplyby != 0)
-        {
+    } else {
+        if (multiplyby != 0) {
             totald->setText(totald->text() + " ×");
         }
     }
@@ -608,8 +580,7 @@ void MainWindow::touchX()
 
 void MainWindow::addProduct(QString gname)
 {
-    if (current != 0)
-    {
+    if (current != 0) {
         current->addArticle(product_list->find(gname).value(), (multiplyby!=0) ? multiplyby : 1);
         actualiseTable();
         showTotal();
@@ -618,111 +589,91 @@ void MainWindow::addProduct(QString gname)
 
 void MainWindow::up()
 {
-    if (!sold_details->selectedRanges().isEmpty())
-    {
+    if (!sold_details->selectedRanges().isEmpty()) {
         if (sold_details->selectedRanges().first().bottomRow() != 0) {
-        int r = sold_details->selectedRanges().first().bottomRow();
-        sold_details->clearSelection();
-        sold_details->setRangeSelected(QTableWidgetSelectionRange(r-1, 0, r-1, sold_details->columnCount()-1), true);
+            int r = sold_details->selectedRanges().first().bottomRow();
+            sold_details->clearSelection();
+            sold_details->setRangeSelected(QTableWidgetSelectionRange(r-1, 0, r-1, sold_details->columnCount()-1), true);
         }
     }
 }
 
 void MainWindow::down()
 {
-    if (!sold_details->selectedRanges().isEmpty())
-    {
+    if (!sold_details->selectedRanges().isEmpty()) {
         if (sold_details->selectedRanges().first().bottomRow() != sold_details->rowCount()-1) {
-        int r = sold_details->selectedRanges().first().bottomRow();
-        sold_details->clearSelection();
-        sold_details->setRangeSelected(QTableWidgetSelectionRange(r+1, 0, r+1, sold_details->columnCount()-1), true);
+            int r = sold_details->selectedRanges().first().bottomRow();
+            sold_details->clearSelection();
+            sold_details->setRangeSelected(QTableWidgetSelectionRange(r+1, 0, r+1, sold_details->columnCount()-1), true);
         }
     }
 }
 void MainWindow::paySlot()
 {
-
-    if (current != 0 && !current->isEmpty())
-    {
-        if(payment > current->getTotal())
-        {
+    if (current != 0 && !current->isEmpty()) {
+        if(payment > current->getTotal()) {
             endSell();
-            qDebug() << "SECOND MAL";
-        }
-        else if (multiplyby != 0)
-        {
+        } else if (multiplyby != 0) {
             payment += multiplyby;
             multiplyby = 0;
-            if (payment == current->getTotal())
-            {
+            if (payment == current->getTotal()) {
                 endSell();
-                qDebug() << "FINISH";
-            } else if (payment > current->getTotal())
-            {
+            } else if (payment > current->getTotal()) {
                 showTotal();
                 qDebug() << "à rendre";
             }
         } else if (payMode) {
             endSell();
 
-        }else {
-        payMode = true;
-                showTotal();
+        } else {
+            payMode = true;
+            showTotal();
         }
-
     }
 }
 
 void MainWindow::moneyTouch(QString data)
 {
-    if (payMode)
-    {
+    if (payMode) {
         int mals = (multiplyby!=0) ? multiplyby : 1;
         payment += mals * data.toDouble();
         showTotal();
-        qDebug() << payment;
-        qDebug() << current->getTotal();
-        if (payment == current->getTotal())
-        {
-            qDebug() << "DONE";
+        if (payment == current->getTotal()) {
             endSell();
         }
     }
 }
 void MainWindow::rushTouch()
 {
-    if (rush->text() == tr("RUSH Mode") && seller != 0)
-    {
+    if (rush->text() == tr("RUSH Mode") && seller != 0) {
         int reponse = QMessageBox::warning(this, tr("Zone protégée"), tr("Vous êtes sur le point d'entrer en <strong>mode Rush</strong>\nCe mode est destiné uniquement à la vente à la volée, lors des récréations par exemple, quand l'affluence est trop fort.\n\n<h3>Voulez-vous continuer ?</h3>"), QMessageBox::Yes | QMessageBox::Abort, QMessageBox::Abort);
         if (reponse == QMessageBox::Yes)
         {
             if (QInputDialog::getText(this, tr("Authentification"), tr("Merci d'entrer une nouvelle fois votre mot de passe\n(date de naissance, format JJMMAAAA)"), QLineEdit::Password, "", nullptr, Qt::Dialog, Qt::ImhDigitsOnly) == seller->getBirthday().remove("-"))
             {
-            rushMode = true;
-            pay->setEnabled(false);
-            cancel->setEnabled(false);
-            calc[11]->setText("-");
-            totalmd->setEnabled(false);
-            totald->setText("RUSH IN PROGRESS");
-            totald->setStyleSheet("background-color: red; color: white;");
-            rush->setText(tr("TERMINER"));
-            QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
-            location += "/log/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
+                rushMode = true;
+                pay->setEnabled(false);
+                cancel->setEnabled(false);
+                calc[11]->setText("-");
+                totalmd->setEnabled(false);
+                totald->setText("RUSH IN PROGRESS");
+                totald->setStyleSheet("background-color: red; color: white;");
+                rush->setText(tr("TERMINER"));
 
-                    QFile file(location);
+                QString location = QStandardPaths::standardLocations(QStandardPaths::AppConfigLocation).at(1);
+                location += "/log/Ventes_" + QDate::currentDate().toString("dd-MM-yyyy") + ".log";
+                QFile file(location);
 
-                    file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
-                    QTextStream stream(&file);
-                    stream.setCodec("UTF-8");
-                    stream << endl << "          ********************          "  << endl << "CODE RED ALERT : RUSH MODE ENGAGED AT " << QDateTime::currentDateTime().toString("HH:mm") << endl;
-            file.close();
+                file.open(QFile::WriteOnly | QFile::Append | QFile::Text);
+                QTextStream stream(&file);
+                stream.setCodec("UTF-8");
+                stream << endl << "          ********************          "  << endl << "CODE RED ALERT : RUSH MODE ENGAGED AT " << QDateTime::currentDateTime().toString("HH:mm") << endl;
+                file.close();
             } else {
                 QMessageBox::critical(this, tr("Connexion refusée"), tr("<strong>Accès refusé.</strong>\n Le mot de passe entré est erroné"));
             }
         }
-    }
-    else if (rush->text() == tr("TERMINER"))
-    {
+    } else if (rush->text() == tr("TERMINER")) {
         int reponse = QMessageBox::information(this, tr("Sortie de vente"), tr("Vous êtes sur le point de sortir du mode Rush.\nLes biens listés seront ajoutés à la comptabilité.\n\nVoulez-vous continuer ?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
         if (reponse == QMessageBox::Yes)
         {
@@ -752,48 +703,46 @@ void MainWindow::rushTouch()
 
 void MainWindow::endSell()
 {
-    qDebug() << "END SELL";
     current->end(manager->getDB(), rushMode);
     seller->addSold(current->getTotal());
     psettings->setValue("sold", current->getNumber());
+
     delete current;
     current = new Vente(psettings->value("sold").toInt()+1);
+
     soldd->setText("Vente N° " + QString::number(current->getNumber()));
     countd->setValue(seller->getAmount());
     totald->setText(tr("VENTE TERMINÉE"));
+
     payment = 0;
     multiplyby = 0;
     payMode = false;
+
     actualiseTable();
-    qDebug() << "FINISHED";
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (seller != 0)
-    {
-        if (current->isEmpty() && !rushMode)
-        {
+    if (seller != 0) {
+        if (current->isEmpty() && !rushMode) {
             sign_slot();
+
             event->accept();
-        } else if (current->isEmpty() && rushMode)
-        {
+        } else if (current->isEmpty() && rushMode) {
             endSell();
             rushTouch();
             sign_slot();
+
             event->accept();
-        } else
-        {
+        } else {
             int reponse = QMessageBox::warning(this, tr("Instance non terminée"), tr("La vente en cours n'est pas terminée.\nVoulez-vous poursuivre la fermeture ?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-            if (reponse == QMessageBox::No)
-            {
+            if (reponse == QMessageBox::No) {
                 event->ignore();
-            }
-            else
-            {
+            } else {
                 if (rushMode)
                     rushTouch();
                 sign_slot();
+
                 event->accept();
             }
         }
